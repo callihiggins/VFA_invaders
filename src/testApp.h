@@ -109,7 +109,8 @@ public:
 	ofxBox2d						box2d;			  //	the box2d world
 	vector		<ofxBox2dCircle>	bullets;		  //	default box2d circles
 	vector		<ofxBox2dRect>	players;
-	vector		<ofVideoPlayer*>	invaderVideos;
+	vector		<ofVideoPlayer*>	leftInvaderVideos;
+    vector		<ofVideoPlayer*>	rightInvaderVideos;
     vector		<vector <Invader> > leftInvaders;
      vector		<vector <Invader> > rightInvaders;
     ofTrueTypeFont	verdana22;

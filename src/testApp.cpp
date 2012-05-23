@@ -61,11 +61,18 @@ void testApp::setup() {
     
     vimeologo.loadImage("images/vimeo_logo.png");
     
+    //right now i'm making two vectors for each side of movie. if running slowly, can put this into one vector and do a test if both shapes have been deleted before stopping and deleting the movie
     for(int i=0; i< 13; i++){
         ofVideoPlayer * v = new ofVideoPlayer();
         v->loadMovie("movies/fingers" + ofToString(i) +".mov");
         v->play();
-        invaderVideos.push_back(v);
+        leftInvaderVideos.push_back(v);
+    }
+    for(int i=0; i< 13; i++){
+        ofVideoPlayer * v = new ofVideoPlayer();
+        v->loadMovie("movies/fingers" + ofToString(i) +".mov");
+        v->play();
+        rightInvaderVideos.push_back(v);
     }
     rows = 3;
     columns = 4;
@@ -81,7 +88,7 @@ void testApp::setup() {
         v.setPhysics(1.0, 0.5, 0.3);
         v.setup(box2d.getWorld(), float(((ofGetWidth()/2 - 60)/columns)*i + (ofGetWidth()/2 + 60)), float(((ofGetHeight() - ofGetHeight()/2)/(rows))*j + 60), 40,40, b2_staticBody);
         v.setupTheCustomData();
-        v.movie = invaderVideos[i%13];
+        v.movie = rightInvaderVideos[i%13];
         row.push_back(v);
         }
          rightInvaders.push_back(row);
@@ -95,7 +102,7 @@ void testApp::setup() {
             v.setPhysics(1.0, 0.5, 0.3);
             v.setup(box2d.getWorld(), float(((ofGetWidth()/2 - 60)/columns)*i + 60), float(((ofGetHeight() - ofGetHeight()/2)/(rows))*j + 60), 40,40, b2_staticBody);
             v.setupTheCustomData();
-            v.movie = invaderVideos[i%13];
+            v.movie = leftInvaderVideos[i%13];
             row.push_back(v);
         }
         leftInvaders.push_back(row);
@@ -104,6 +111,43 @@ void testApp::setup() {
 
 //--------------------------------------------------------------
 void testApp::contactStart(ofxBox2dContactArgs &e) {
+    if(e.a != NULL && e.b != NULL) { 
+		
+		// if we collide with the ground we do not
+		// want to play a sound. this is how you do that
+		if((e.a->GetType() == b2Shape::e_circle && e.b->GetType() == b2Shape::e_polygon) || (e.a->GetType() == b2Shape::e_polygon && e.b->GetType() == b2Shape::e_circle )) {
+			
+			Data * aData = (Data*)e.a->GetBody()->GetUserData();
+			Data * bData = (Data*)e.b->GetBody()->GetUserData();
+            
+            if(aData){
+                if((aData->type == 0 && bData->type == 1)|| (bData->type == 0 && aData->type == 1)) {
+                    sound[aData->soundID].play(); 
+                    //apply a force back at the ball when it hits a paddle
+                    b2Vec2 veloc = e.b->GetBody()->GetLinearVelocity();
+                    veloc.operator*=(1.5);
+                    veloc.operator-();
+                    e.b->GetBody()->SetLinearVelocity(veloc);
+                }
+                
+                if(aData->type == 0 && bData->type == 2){
+                    aData->hit = true;
+                    bData->hit = true;
+                    printf("collision!");
+                }
+                
+                if(bData->type == 0 && aData->type == 2){
+                    aData->hit = true;  
+                    bData->hit = true;
+                    printf("collision!");
+                    
+                    
+                }
+            }
+            
+ 		}
+	}
+
 	}
 
 //--------------------------------------------------------------
@@ -154,8 +198,11 @@ void testApp::update() {
         }
     
 
-    for(int i=0; i<invaderVideos.size(); i++){ 
-        invaderVideos[i]->idleMovie();
+    for(int i=0; i<leftInvaderVideos.size(); i++){ 
+        leftInvaderVideos[i]->idleMovie();
+    }
+    for(int i=0; i<rightInvaderVideos.size(); i++){ 
+        rightInvaderVideos[i]->idleMovie();
     }
     
     
@@ -207,22 +254,37 @@ void testApp::update() {
         }
     }
     }
-   
-
-      
-      /*  for(int i=0; i<winningvideos.size(); i++) {
-        Data * theData = (Data*)winningvideos[i].getData();
+    for(int j=0; j<rows;j++){
+        for(int i=0; i<columns;i++){       
+        Data * theData = (Data*)leftInvaders[i][j].getData();
         if(theData->hit == true){
-                       //delete winning videos after they've been hit 
             theData->hit = false;  
-            winningvideos[i].movie->stop();
-            delete winningvideos[i].movie;
-            box2d.getWorld()->DestroyBody(winningvideos[i].body);
-            wvideos.erase(wvideos.begin()+i);
-            winningvideos.erase(winningvideos.begin()+i);   //HOW TO DELETE FROM VECTOR LIST?
+           leftInvaders[i][j].movie->stop();
+            delete leftInvaders[i][j].movie;
+            box2d.getWorld()->DestroyBody(leftInvaders[i][j].body);
+            leftInvaderVideos.erase(leftInvaderVideos.begin()+i*j);
+            leftInvaders.erase(leftInvaders.begin()+i);   //HOW TO DELETE FROM VECTOR LIST?
             
+            }
         }
-  	}*/
+    }
+
+    for(int j=0; j<rows;j++){
+        for(int i=0; i<columns;i++){       
+            Data * theData = (Data*)rightInvaders[i][j].getData();
+            if(theData->hit == true){
+                theData->hit = false;  
+                rightInvaders[i][j].movie->stop();
+                delete rightInvaders[i][j].movie;
+                box2d.getWorld()->DestroyBody(rightInvaders[i][j].body);
+                rightInvaderVideos.erase(rightInvaderVideos.begin()+i*j);
+                rightInvaders.erase(rightInvaders.begin()+i);   //HOW TO DELETE FROM VECTOR LIST?
+                
+            }
+        }
+    }
+
+    
     count++;
 }
 
