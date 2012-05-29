@@ -16,7 +16,7 @@ void testApp::setup() {
     loadSettings("settings.xml");
     receiver.setup( port );
 	box2d.init();
-	box2d.setGravity(0, 0);
+	box2d.setGravity(0, 10);
 	box2d.createGround();
 	box2d.setFPS(30.0);
   //  box2d.createBounds(0, 0,ofGetScreenWidth(), 0);
@@ -38,6 +38,7 @@ void testApp::setup() {
     Data * sd1 = (Data*)player1.getData();
     sd1->soundID = ofRandom(0, N_SOUNDS);
     sd1->hit	= false;		
+    sd1-> paddleopacity = 255;
     sd1->type = 1;
     players.push_back(player1);	
 
@@ -48,7 +49,8 @@ void testApp::setup() {
     player2.setData(new Data());
     Data * sd2 = (Data*)player2.getData();
     sd2->soundID = ofRandom(0, N_SOUNDS);
-    sd2->hit	= false;	
+    sd2->hit	= false;
+	sd2-> paddleopacity = 255;
 	sd2->type = 1;
     players.push_back(player2);	
 
@@ -369,6 +371,21 @@ void testApp::update() {
 
     }
     
+    //INVADERS SEND BULLETS
+    if(int(ofRandom(0,100))== 1){
+    printf("shoot!");
+    ofxBox2dCircle  c2;
+    c2.setPhysics(0.1, 1.0, 0.1);
+    c2.setup(box2d.getWorld(), leftInvaders1[leftInvaders1.size() - 1].getPosition().x, leftInvaders1[leftInvaders1.size() - 1].getPosition().y + leftInvaders1[3].getWidth()/2 + 40, 5);
+    c2.setData(new Data());
+    Data * sd2 = (Data*)c2.getData();
+    sd2->soundID = ofRandom(0, N_SOUNDS);
+    sd2->hit	= false;		
+    sd2->type = 0;
+    bullets.push_back(c2);
+    }
+
+    
     //DELETE WHEN THERE'S A HIT
         
     for(int i=0; i<leftInvaders1.size(); i++){
@@ -469,7 +486,7 @@ void testApp::update() {
     
     for(int i=0; i<bullets.size(); i++){
         Data * theData = (Data*)bullets[i].getData();
-        if(theData->hit == true || bullets[i].getPosition().y < 0){
+        if(theData->hit == true || bullets[i].getPosition().y < 0 || bullets[i].getPosition().y > ofGetHeight()-10 ){
             theData->hit = false;  
             //     rightInvaders4[i].movie->stop();
             //   delete rightInvaders4[i].movie;
@@ -481,7 +498,22 @@ void testApp::update() {
         
     }
 
-    
+
+    for(int i=0; i<players.size(); i++){
+        Data * theData = (Data*)players[i].getData();
+        if(theData->hit == true ){
+            theData->hit = false;  
+            theData->paddleopacity =  theData->paddleopacity - 125;
+            //     rightInvaders4[i].movie->stop();
+            //   delete rightInvaders4[i].movie;
+            box2d.getWorld()->DestroyBody(bullets[i].body);
+            //     rightInvaderVideos.erase(rightInvaderVideos.begin()+i+rows*3);
+            bullets.erase(bullets.begin()+i);  
+        }
+        
+        
+    }
+
     
     count++;
 }
@@ -534,7 +566,7 @@ void testApp::draw() {
             for(int i=0; i<players.size(); i++) {
                 ofFill();
                 Data * data = (Data*)players[i].getData();
-                ofSetHexColor(0x4ccae9);
+                ofSetColor(0,0,255, data->paddleopacity);
                 players[i].draw();
             }
         }
@@ -581,7 +613,6 @@ if (key == 'R' || key == 'r'){
         ofxBox2dCircle  c2;
         c2.setPhysics(0.1, 1.0, 0.1);
         c2.setup(box2d.getWorld(), players[1].getPosition().x, players[1].getPosition().y, 5);
-        
         c2.setVelocity(0, 100);
         c2.setData(new Data());
         Data * sd2 = (Data*)c2.getData();
