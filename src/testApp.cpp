@@ -9,7 +9,7 @@ void testApp::setup() {
 	    loaduser = false;
     user1load = false;
     user2load = false;
-    numInvaders = 20;
+    moveDown = false;
     verdana22.loadFont("verdana.ttf", 22, true, true);
 	verdana22.setLineHeight(18.0f);
 	verdana22.setLetterSpacing(1.037);
@@ -19,7 +19,7 @@ void testApp::setup() {
 	box2d.setGravity(0, 0);
 	box2d.createGround();
 	box2d.setFPS(30.0);
-    box2d.createBounds(0, 0,ofGetScreenWidth(), 0);
+  //  box2d.createBounds(0, 0,ofGetScreenWidth(), 0);
 
     score1 = 0;
     score2 = 0;
@@ -31,9 +31,9 @@ void testApp::setup() {
 	ofAddListener(box2d.contactEndEvents, this, &testApp::contactEnd);
 
     ofxBox2dRect player1;
-   player1.setPhysics(0.1, 1.0, 0.0);
+    player1.setPhysics(0.1, 1.0, 0.0);
     player1.setup(box2d.getWorld(), 0, ofGetHeight()-10, paddlewidth, paddlewidth, b2_kinematicBody);
-   player1.setData(new Data());
+    player1.setData(new Data());
   //  paddle1.body->SetUserData(paddle1);
     Data * sd1 = (Data*)player1.getData();
     sd1->soundID = ofRandom(0, N_SOUNDS);
@@ -62,51 +62,102 @@ void testApp::setup() {
     vimeologo.loadImage("images/vimeo_logo.png");
     
     //right now i'm making two vectors for each side of movie. if running slowly, can put this into one vector and do a test if both shapes have been deleted before stopping and deleting the movie
-    for(int i=0; i< 13; i++){
-        ofVideoPlayer * v = new ofVideoPlayer();
-        v->loadMovie("movies/fingers" + ofToString(i) +".mov");
-        v->play();
-        leftInvaderVideos.push_back(v);
-    }
-    for(int i=0; i< 13; i++){
-        ofVideoPlayer * v = new ofVideoPlayer();
-        v->loadMovie("movies/fingers" + ofToString(i) +".mov");
-        v->play();
-        rightInvaderVideos.push_back(v);
-    }
-    rows = 3;
+//    for(int i=0; i< 13; i++){
+//        ofVideoPlayer * v = new ofVideoPlayer();
+//        v->loadMovie("movies/fingers" + ofToString(i) +".mov");
+//        v->play();
+//        leftInvaderVideos.push_back(v);
+//    }
+//    for(int i=0; i< 13; i++){
+//        ofVideoPlayer * v = new ofVideoPlayer();
+//        v->loadMovie("movies/fingers" + ofToString(i) +".mov");
+//        v->play();
+//        rightInvaderVideos.push_back(v);
+//    }
+    rows = 4;
     columns = 4;
     yincrement = 25;
     xincrement = 25;
     xlimit = ofGetWidth()-20;
     xmin = 20;
     
-    for(int i=0; i < columns; i++){
-        vector <Invader> row;
-        for(int j=0; j < rows; j++){
+    for(int i=0; i < 4; i++){
         Invader v;
         v.setPhysics(1.0, 0.5, 0.3);
-        v.setup(box2d.getWorld(), float(((ofGetWidth()/2 - 60)/columns)*i + (ofGetWidth()/2 + 60)), float(((ofGetHeight() - ofGetHeight()/2)/(rows))*j + 60), 40,40, b2_staticBody);
+        v.setup(box2d.getWorld(), float(((ofGetWidth()/2 - 60)/columns)+ (ofGetWidth()/2)), float(((ofGetHeight() - ofGetHeight()/2)/(rows))*i + 60), 40,40, b2_staticBody);
+     v.setupTheCustomData();
+  //      v.movie = rightInvaderVideos[i];
+        rightInvaders1.push_back(v);
+        printf("right position \n", rightInvaders1[i].getPosition().x);
+    }
+    
+    for(int i=0; i < rows; i++){
+        Invader v;
+        v.setPhysics(1.0, 0.5, 0.3);
+        v.setup(box2d.getWorld(), float(((ofGetWidth()/2 - 60)/columns)*2 + (ofGetWidth()/2)), float(((ofGetHeight() - ofGetHeight()/2)/(rows))*i + 60), 40,40, b2_staticBody);
         v.setupTheCustomData();
-        v.movie = rightInvaderVideos[i%13];
-        row.push_back(v);
-        }
-         rightInvaders.push_back(row);
+ //       v.movie = rightInvaderVideos[i + rows];
+        rightInvaders2.push_back(v);
+    }
+    
+   for(int i=0; i < rows; i++){
+        Invader v;
+        v.setPhysics(1.0, 0.5, 0.3);
+        v.setup(box2d.getWorld(), float(((ofGetWidth()/2 - 60)/columns)*3 + (ofGetWidth()/2 )), float(((ofGetHeight() - ofGetHeight()/2)/(rows))*i + 60), 40,40, b2_staticBody);
+        v.setupTheCustomData();
+ //       v.movie = rightInvaderVideos[i + rows*2];
+        rightInvaders3.push_back(v);
+    }
+    
+    
+    for(int i=0; i < rows; i++){
+        Invader v;
+        v.setPhysics(1.0, 0.5, 0.3);
+        v.setup(box2d.getWorld(), float(((ofGetWidth()/2 - 60)/columns)*4 + (ofGetWidth()/2)), float(((ofGetHeight() - ofGetHeight()/2)/rows)*i + 60), 40,40, b2_staticBody);
+        v.setupTheCustomData();
+   //     v.movie = rightInvaderVideos[i + rows*3];
+        rightInvaders4.push_back(v);
     }
 
 
-    for(int i=0; i < columns; i++){
-        vector <Invader> row;
-        for(int j=0; j < rows; j++){
-            Invader v;
-            v.setPhysics(1.0, 0.5, 0.3);
-            v.setup(box2d.getWorld(), float(((ofGetWidth()/2 - 60)/columns)*i + 60), float(((ofGetHeight() - ofGetHeight()/2)/(rows))*j + 60), 40,40, b2_staticBody);
-            v.setupTheCustomData();
-            v.movie = leftInvaderVideos[i%13];
-            row.push_back(v);
-        }
-        leftInvaders.push_back(row);
+   for(int i=0; i < rows; i++){
+        Invader v;
+        v.setPhysics(1.0, 0.5, 0.3);
+        v.setup(box2d.getWorld(), float(((ofGetWidth()/2 - 60)/columns)), float(((ofGetHeight() - ofGetHeight()/2)/rows)*i + 60), 40,40, b2_staticBody);
+        v.setupTheCustomData();
+  //      v.movie = leftInvaderVideos[i];
+        leftInvaders1.push_back(v);
     }
+
+    for(int i=0; i < rows; i++){
+        Invader v;
+        v.setPhysics(1.0, 0.5, 0.3);
+        v.setup(box2d.getWorld(), float(((ofGetWidth()/2 - 60)/columns)*2), float(((ofGetHeight() - ofGetHeight()/2)/rows)*i + 60), 40,40, b2_staticBody);
+        v.setupTheCustomData();
+ //       v.movie = leftInvaderVideos[i + rows];
+        leftInvaders2.push_back(v);
+    }
+
+    
+    for(int i=0; i < rows; i++){
+        Invader v;
+        v.setPhysics(1.0, 0.5, 0.3);
+        v.setup(box2d.getWorld(), float(((ofGetWidth()/2 - 60)/columns)*3), float(((ofGetHeight() - ofGetHeight()/2)/rows)*i + 60), 40,40, b2_staticBody);
+        v.setupTheCustomData();
+   //     v.movie = leftInvaderVideos[i + rows*2];
+        leftInvaders3.push_back(v);
+    }
+
+    
+    for(int i=0; i < rows; i++){
+        Invader v;
+        v.setPhysics(1.0, 0.5, 0.3);
+        v.setup(box2d.getWorld(), float(((ofGetWidth()/2 - 60)/columns)*4), float(((ofGetHeight() - ofGetHeight()/2)/rows)*i + 60), 40,40, b2_staticBody);
+        v.setupTheCustomData();
+   //     v.movie = leftInvaderVideos[i  + rows*3];
+        leftInvaders4.push_back(v);
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -161,7 +212,7 @@ void testApp::update() {
 	
 	box2d.update();
     
-    //OSC STUFF
+        //OSC STUFF
     while( receiver.hasWaitingMessages() )
 	{
 		// get the next message
@@ -198,17 +249,17 @@ void testApp::update() {
         }
     
 
-    for(int i=0; i<leftInvaderVideos.size(); i++){ 
-        leftInvaderVideos[i]->idleMovie();
-    }
-    for(int i=0; i<rightInvaderVideos.size(); i++){ 
-        rightInvaderVideos[i]->idleMovie();
-    }
+//    for(int i=0; i<leftInvaderVideos.size(); i++){ 
+//        leftInvaderVideos[i]->idleMovie();
+//    }
+//    for(int i=0; i<rightInvaderVideos.size(); i++){ 
+//        rightInvaderVideos[i]->idleMovie();
+//    }
     
     
    //MOVE THE PLAYERS
-        mapped_joystick1 = int(ofMap(joystick1, 0, 360, 0, ofGetHeight()));
-        mapped_joystick2 = int(ofMap(joystick2, 0, 360, 0, ofGetHeight()));
+//        mapped_joystick1 = int(ofMap(joystick1, 0, 360, 0, ofGetHeight()));
+//        mapped_joystick2 = int(ofMap(joystick2, 0, 360, 0, ofGetHeight()));
     
             b2Vec2 pos1 =  players[0].body->GetPosition();
             b2Vec2 target1 = b2Vec2(mouseX/OFX_BOX2D_SCALE, pos1.y );
@@ -227,78 +278,248 @@ void testApp::update() {
             players[1].body->SetLinearVelocity(diff2);
 
     
-     if(count%50 == 1){
-             for(int j=0; j<rows;j++){
-                 for(int i=0; i<columns;i++){
-                    leftInvaders[i][j].setPosition(leftInvaders[i][j].getPosition().x + xincrement, leftInvaders[i][j].getPosition().y);
-                 leftInvaders[i][j].update();
-                 rightInvaders[i][j].setPosition(rightInvaders[i][j].getPosition().x + xincrement, rightInvaders[i][j].getPosition().y);
-                 rightInvaders[i][j].update();
-              
+    //SHIFT EVERYONE OVER 
+    
+      if(count%50 == 1){
+         for(int i=0; i<leftInvaders1.size(); i++){
+                leftInvaders1[i].setPosition(leftInvaders1[i].getPosition().x + xincrement, leftInvaders1[i].getPosition().y);
+                leftInvaders1[i].update();
+         }
+         for(int i=0; i<leftInvaders2.size(); i++){
+             leftInvaders2[i].setPosition(leftInvaders2[i].getPosition().x + xincrement, leftInvaders2[i].getPosition().y);
+             leftInvaders2[i].update();
+         }
+         for(int i=0; i<leftInvaders3.size(); i++){
+             leftInvaders3[i].setPosition(leftInvaders3[i].getPosition().x + xincrement, leftInvaders3[i].getPosition().y);
+             leftInvaders3[i].update();
+         }
+         for(int i=0; i<leftInvaders4.size(); i++){
+             leftInvaders4[i].setPosition(leftInvaders4[i].getPosition().x + xincrement, leftInvaders4[i].getPosition().y);
+             leftInvaders4[i].update();
+         }
+       for(int i=0; i<rightInvaders1.size(); i++){
+             rightInvaders1[i].setPosition(rightInvaders1[i].getPosition().x + xincrement, rightInvaders1[i].getPosition().y);
+             rightInvaders1[i].update();
              }
-            }
-        }
-    for(int j=0; j<rows;j++){
-        for(int i=0; i<columns;i++){
-    if (rightInvaders[i][j].getPosition().x >= xlimit || leftInvaders[i][j].getPosition().x <= xmin ){
+         for(int i=0; i<rightInvaders2.size(); i++){
+             rightInvaders2[i].setPosition(rightInvaders2[i].getPosition().x + xincrement, rightInvaders2[i].getPosition().y);
+             rightInvaders2[i].update();
+             
+         }
+         for(int i=0; i<rightInvaders3.size(); i++){
+             rightInvaders3[i].setPosition(rightInvaders3[i].getPosition().x + xincrement, rightInvaders3[i].getPosition().y);
+             rightInvaders3[i].update();
+             
+         }
+         for(int i=0; i<rightInvaders4.size(); i++){
+             rightInvaders4[i].setPosition(rightInvaders4[i].getPosition().x + xincrement, rightInvaders4[i].getPosition().y);
+             rightInvaders4[i].update();
+         }
+
+    }
+        
+    for(int i=0; i<rightInvaders4.size(); i++){
+        if (rightInvaders4[i].getPosition().x >= xlimit)  moveDown = true;
+    }
+    
+    for(int i=0; i<leftInvaders1.size(); i++){
+        if (leftInvaders1[i].getPosition().x <= xmin)  moveDown = true;
+    }
+       
+    //SHIFT EVERYONE DOWN A ROW WHEN WE HIT THE EDGE
+        
+    if(moveDown){
         printf("incremement!");
-        for(int l=0; l<rows;l++){
-            for(int k=0; k<columns;k++){
-                rightInvaders[k][l].setPosition(rightInvaders[k][l].getPosition().x + xincrement*-1, rightInvaders[k][l].getPosition().y + yincrement);
-                rightInvaders[k][l].update();
-                leftInvaders[k][l].setPosition(leftInvaders[k][l].getPosition().x + xincrement*-1, leftInvaders[k][l].getPosition().y + yincrement);
-                leftInvaders[k][l].update();
-            }
+        for(int i=0; i<leftInvaders1.size(); i++){
+            leftInvaders1[i].setPosition(leftInvaders1[i].getPosition().x + xincrement*-1, leftInvaders1[i].getPosition().y + yincrement);
+            leftInvaders1[i].update();
+        }
+        for(int i=0; i<leftInvaders2.size(); i++){
+            leftInvaders2[i].setPosition(leftInvaders2[i].getPosition().x + xincrement*-1, leftInvaders2[i].getPosition().y+ yincrement);
+            leftInvaders2[i].update();
+        }
+        for(int i=0; i<leftInvaders3.size(); i++){
+            leftInvaders3[i].setPosition(leftInvaders3[i].getPosition().x + xincrement*-1, leftInvaders3[i].getPosition().y+ yincrement);
+            leftInvaders3[i].update();
+        }
+        for(int i=0; i<leftInvaders4.size(); i++){
+            leftInvaders4[i].setPosition(leftInvaders4[i].getPosition().x + xincrement*-1, leftInvaders4[i].getPosition().y+ yincrement);
+            leftInvaders4[i].update();
+        }
+        for(int i=0; i<rightInvaders1.size(); i++){
+            rightInvaders1[i].setPosition(rightInvaders1[i].getPosition().x+ xincrement*-1, rightInvaders1[i].getPosition().y+ yincrement);
+            rightInvaders1[i].update();
+        }
+        for(int i=0; i<rightInvaders2.size(); i++){
+            rightInvaders2[i].setPosition(rightInvaders2[i].getPosition().x + xincrement*-1, rightInvaders2[i].getPosition().y+ yincrement);
+            rightInvaders2[i].update();
+            
+        }
+        for(int i=0; i<rightInvaders3.size(); i++){
+            rightInvaders3[i].setPosition(rightInvaders3[i].getPosition().x + xincrement*-1, rightInvaders3[i].getPosition().y+ yincrement);
+            rightInvaders3[i].update();
+            
+        }
+        for(int i=0; i<rightInvaders4.size(); i++){
+            rightInvaders4[i].setPosition(rightInvaders4[i].getPosition().x + xincrement*-1, rightInvaders4[i].getPosition().y+ yincrement);
+            rightInvaders4[i].update();
         }
         xincrement = xincrement * -1;
-        }
+        moveDown = false;
+
     }
-    }
-    for(int j=0; j<rows;j++){
-        for(int i=0; i<columns;i++){       
-        Data * theData = (Data*)leftInvaders[i][j].getData();
+    
+    //DELETE WHEN THERE'S A HIT
+        
+    for(int i=0; i<leftInvaders1.size(); i++){
+        Data * theData = (Data*)leftInvaders1[i].getData();
         if(theData->hit == true){
             theData->hit = false;  
-           leftInvaders[i][j].movie->stop();
-            delete leftInvaders[i][j].movie;
-            box2d.getWorld()->DestroyBody(leftInvaders[i][j].body);
-            leftInvaderVideos.erase(leftInvaderVideos.begin()+i*j);
-            leftInvaders.erase(leftInvaders.begin()+i);   //HOW TO DELETE FROM VECTOR LIST?
-            
+         // leftInvaders1[i].movie->stop();
+       //     delete leftInvaders1[i].movie;
+            box2d.getWorld()->DestroyBody(leftInvaders1[i].body);
+          //  leftInvaderVideos.erase(leftInvaderVideos.begin()+i);
+            leftInvaders1.erase(leftInvaders1.begin()+i);  
             }
+        }
+
+    for(int i=0; i<leftInvaders2.size(); i++){
+        Data * theData = (Data*)leftInvaders2[i].getData();
+        if(theData->hit == true){
+            theData->hit = false;  
+         //   leftInvaders2[i].movie->stop();
+          //  delete leftInvaders2[i].movie;
+            box2d.getWorld()->DestroyBody(leftInvaders2[i].body);
+         //   leftInvaderVideos.erase(leftInvaderVideos.begin()+i+rows);
+            leftInvaders2.erase(leftInvaders2.begin()+i);  
         }
     }
 
-    for(int j=0; j<rows;j++){
-        for(int i=0; i<columns;i++){       
-            Data * theData = (Data*)rightInvaders[i][j].getData();
-            if(theData->hit == true){
-                theData->hit = false;  
-                rightInvaders[i][j].movie->stop();
-                delete rightInvaders[i][j].movie;
-                box2d.getWorld()->DestroyBody(rightInvaders[i][j].body);
-                rightInvaderVideos.erase(rightInvaderVideos.begin()+i*j);
-                rightInvaders.erase(rightInvaders.begin()+i);   //HOW TO DELETE FROM VECTOR LIST?
-                
-            }
+    for(int i=0; i<leftInvaders3.size(); i++){
+        Data * theData = (Data*)leftInvaders3[i].getData();
+        if(theData->hit == true){
+            theData->hit = false;  
+       //     leftInvaders3[i].movie->stop();
+      //      delete leftInvaders3[i].movie;
+            box2d.getWorld()->DestroyBody(leftInvaders3[i].body);
+     //       leftInvaderVideos.erase(leftInvaderVideos.begin()+i+rows*2);
+            leftInvaders3.erase(leftInvaders3.begin()+i);  
         }
     }
 
+    for(int i=0; i<leftInvaders4.size(); i++){
+        Data * theData = (Data*)leftInvaders4[i].getData();
+        if(theData->hit == true){
+            theData->hit = false;  
+  //        leftInvaders4[i].movie->stop();
+         //   delete leftInvaders4[i].movie;
+            box2d.getWorld()->DestroyBody(leftInvaders4[i].body);
+          //  leftInvaderVideos.erase(leftInvaderVideos.begin()+i+rows*3);
+            leftInvaders4.erase(leftInvaders4.begin()+i);  
+        }
+    }
+
+  for(int i=0; i<rightInvaders1.size(); i++){
+        Data * theData = (Data*)rightInvaders1[i].getData();
+        if(theData->hit == true){
+            theData->hit = false;  
+        //    rightInvaders1[i].movie->stop();
+         //   delete leftInvaders1[i].movie;
+            box2d.getWorld()->DestroyBody(rightInvaders1[i].body);
+       //     rightInvaderVideos.erase(rightInvaderVideos.begin()+i);
+            rightInvaders1.erase(rightInvaders1.begin()+i);  
+        }
+    }
+    
+    for(int i=0; i<rightInvaders2.size(); i++){
+        Data * theData = (Data*)rightInvaders2[i].getData();
+        if(theData->hit == true){
+            theData->hit = false;  
+        //    rightInvaders2[i].movie->stop();
+       //     delete leftInvaders2[i].movie;
+            box2d.getWorld()->DestroyBody(rightInvaders2[i].body);
+       //     rightInvaderVideos.erase(rightInvaderVideos.begin()+i+rows);
+            rightInvaders2.erase(rightInvaders2.begin()+i);  
+        }
+    }
+    
+    for(int i=0; i<rightInvaders3.size(); i++){
+        Data * theData = (Data*)rightInvaders3[i].getData();
+        if(theData->hit == true){
+            theData->hit = false;  
+       //     rightInvaders3[i].movie->stop();
+      //      delete rightInvaders3[i].movie;
+            box2d.getWorld()->DestroyBody(rightInvaders3[i].body);
+    //        rightInvaderVideos.erase(rightInvaderVideos.begin()+i+rows*2);
+            rightInvaders3.erase(rightInvaders3.begin()+i);  
+        }
+    }
+    
+    for(int i=0; i<rightInvaders4.size(); i++){
+        Data * theData = (Data*)rightInvaders4[i].getData();
+        if(theData->hit == true){
+            theData->hit = false;  
+       //     rightInvaders4[i].movie->stop();
+         //   delete rightInvaders4[i].movie;
+            box2d.getWorld()->DestroyBody(rightInvaders4[i].body);
+       //     rightInvaderVideos.erase(rightInvaderVideos.begin()+i+rows*3);
+            rightInvaders4.erase(rightInvaders4.begin()+i);  
+        }
+    }
+    
+    for(int i=0; i<bullets.size(); i++){
+        Data * theData = (Data*)bullets[i].getData();
+        if(theData->hit == true || bullets[i].getPosition().y < 0){
+            theData->hit = false;  
+            //     rightInvaders4[i].movie->stop();
+            //   delete rightInvaders4[i].movie;
+            box2d.getWorld()->DestroyBody(bullets[i].body);
+            //     rightInvaderVideos.erase(rightInvaderVideos.begin()+i+rows*3);
+            bullets.erase(bullets.begin()+i);  
+        }
+
+        
+    }
+
+    
     
     count++;
 }
 
 //--------------------------------------------------------------
 void testApp::draw() {
-    ofLine(ofGetWidth()/2, 0, ofGetWidth()/2, ofGetHeight()); 
+    ofLine(ofGetWidth()/2, 0, ofGetWidth()/2, ofGetHeight());
+
+    //DRAW THE INVADERS
     
-    
-    for(int i=0; i<columns; i++) {
-        for(int j=0; j<rows; j++) {
-        leftInvaders[i][j].draw();
-        rightInvaders[i][j].draw();
+    for(int i=0; i<leftInvaders1.size(); i++){
+        leftInvaders1[i].draw();
     }
-        //DRAW PROFILE PHOTOS AS PLAYERS
+    for(int i=0; i<leftInvaders2.size(); i++){
+        leftInvaders2[i].draw();
+    }
+    for(int i=0; i<leftInvaders3.size(); i++){
+        leftInvaders3[i].draw();
+    }
+    for(int i=0; i<leftInvaders4.size(); i++){
+        leftInvaders4[i].draw();
+    }
+    for(int i=0; i<rightInvaders1.size(); i++){
+        rightInvaders1[i].draw();
+    }
+    for(int i=0; i<rightInvaders2.size(); i++){
+        rightInvaders2[i].draw();
+    }
+    
+
+           for(int i=0; i<rightInvaders3.size(); i++){
+        rightInvaders3[i].draw();
+    }
+    for(int i=0; i<rightInvaders4.size(); i++){
+        rightInvaders4[i].draw();
+    }
+ 
+    //DRAW PROFILE PHOTOS AS PLAYERS
         if(user1load){
             user1.draw(players[0].getPosition().x, players[0].getPosition().y, players[0].getWidth() * 2, players[0].getWidth() * 2);
             verdana22.drawString(ofToString(score1, 1), 100,20);
@@ -337,14 +558,14 @@ void testApp::draw() {
 
 
     
-	}
+	
 }
 
 //--------------------------------------------------------------
 void testApp::keyPressed(int key) {
     
     //EVENTUALLY KNOW WHICH PLAYER IS SHOOTING
-    if (key == 'B' || key == 'b'){
+    if (key == 'L' || key == 'l'){
     ofxBox2dCircle  c1;
     c1.setPhysics(0.1, 1.0, 0.1);
     c1.setup(box2d.getWorld(), players[0].getPosition().x, players[0].getPosition().y, 5);
@@ -355,7 +576,8 @@ void testApp::keyPressed(int key) {
     sd1->hit	= false;		
     sd1->type = 0;
     bullets.push_back(c1);
-
+    }
+if (key == 'R' || key == 'r'){
         ofxBox2dCircle  c2;
         c2.setPhysics(0.1, 1.0, 0.1);
         c2.setup(box2d.getWorld(), players[1].getPosition().x, players[1].getPosition().y, 5);

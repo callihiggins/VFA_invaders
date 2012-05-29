@@ -111,8 +111,16 @@ public:
 	vector		<ofxBox2dRect>	players;
 	vector		<ofVideoPlayer*>	leftInvaderVideos;
     vector		<ofVideoPlayer*>	rightInvaderVideos;
-    vector		<vector <Invader> > leftInvaders;
-     vector		<vector <Invader> > rightInvaders;
+    vector		<Invader>  leftInvaders1;
+    vector		<Invader>  leftInvaders2;
+    vector		<Invader>  leftInvaders3;
+    vector		<Invader>  leftInvaders4;
+    vector		<Invader>  leftInvaders5;
+    vector		< Invader>  rightInvaders1;
+    vector		<Invader>  rightInvaders2;
+    vector		<Invader>  rightInvaders3;
+    vector		<Invader>  rightInvaders4;
+    vector		<Invader>  rightInvaders5;
     ofTrueTypeFont	verdana22;
     ofImage vimeologo;
     int score1, score2, counter, count, joystick1, joystick2, mapped_joystick1, mapped_joystick2, numInvaders, columns, rows, yincrement, xincrement, xlimit, xmin, paddlewidth ;
@@ -122,7 +130,7 @@ public:
     int port;
     char * host;
     string user;
-    bool loaduser, user1load, user2load;
+    bool loaduser, user1load, user2load, moveDown;
     int whichuser;
     int paddleattraction;
     b2Vec2 pveloc;
