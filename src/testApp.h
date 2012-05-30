@@ -9,7 +9,7 @@
 #define N_SOUNDS 5
 // listen on port 12345
 //port is 9002 at nyu
-#define PORT 9003 
+#define PORT 12346 
 #define NUM_MSG_STRINGS 20
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,6 +30,7 @@ public:
     int type;
     int lifespan;
     int paddleopacity;
+    bool killed;
 
 };
 
@@ -99,6 +100,7 @@ public:
 	void mouseDragged(int x, int y, int button);
 	void mousePressed(int x, int y, int button);
 	void mouseReleased(int x, int y, int button);
+    void startGame();
 	void resized(int w, int h);
 	void loadSettings(string fileString);
 	// this is the function for contacts
@@ -131,10 +133,10 @@ public:
     int port;
     char * host;
     string user;
-    bool loaduser, user1load, user2load, moveRightDown, moveLeftDown;
-    int whichuser;
+    bool loaduser, user1load, user2load, moveRightDown, moveLeftDown, stopGame;
+    int whichuser, countdownnum, alpha, alphaincrement;
     int paddleattraction;
     b2Vec2 pveloc;
-    bool fullscreen;
+    bool fullscreen,  startGameBool, startScreen,  countdown, countdownnumbool, drawusers, login;
 };
 
