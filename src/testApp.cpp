@@ -9,17 +9,18 @@ void testApp::setup() {
 	    loaduser = false;
     user1load = false;
     user2load = false;
-    moveDown = false;
-    verdana22.loadFont("verdana.ttf", 22, true, true);
+    moveRightDown = false;
+    moveLeftDown = false;
+verdana22.loadFont("verdana.ttf", 22, true, true);
 	verdana22.setLineHeight(18.0f);
 	verdana22.setLetterSpacing(1.037);
     loadSettings("settings.xml");
     receiver.setup( port );
 	box2d.init();
-	box2d.setGravity(0, 10);
-	box2d.createGround();
+  	box2d.setGravity(0, 10);
+	//box2d.createGround();
 	box2d.setFPS(30.0);
-  //  box2d.createBounds(0, 0,ofGetScreenWidth(), 0);
+    box2d.createBounds(ofGetWidth()/2, 0, ofGetWidth()/2 , ofGetHeight());
 
     score1 = 0;
     score2 = 0;
@@ -79,7 +80,8 @@ void testApp::setup() {
     rows = 4;
     columns = 4;
     yincrement = 25;
-    xincrement = 25;
+    xLincrement = 25;
+    xRincrement = 25;
     xlimit = ofGetWidth()-20;
     xmin = 20;
     
@@ -175,12 +177,11 @@ void testApp::contactStart(ofxBox2dContactArgs &e) {
             
             if(aData){
                 if((aData->type == 0 && bData->type == 1)|| (bData->type == 0 && aData->type == 1)) {
-                    sound[aData->soundID].play(); 
+                 //   sound[aData->soundID].play(); 
                     //apply a force back at the ball when it hits a paddle
-                    b2Vec2 veloc = e.b->GetBody()->GetLinearVelocity();
-                    veloc.operator*=(1.5);
-                    veloc.operator-();
-                    e.b->GetBody()->SetLinearVelocity(veloc);
+                    aData->hit = true;
+                    bData->hit = true; 
+                    printf("paddle collision!");
                 }
                 
                 if(aData->type == 0 && bData->type == 2){
@@ -195,7 +196,7 @@ void testApp::contactStart(ofxBox2dContactArgs &e) {
                     printf("collision!");
                     
                     
-                }
+               }
             }
             
  		}
@@ -225,7 +226,7 @@ void testApp::update() {
 		{
 			// both the arguments are int32's
 			joystick1 = m.getArgAsInt32( 0 );
-            joystick2 = m.getArgAsInt32( 1 );
+           // joystick2 = m.getArgAsInt32( 1 );
         }
         if ( m.getAddress() == "/user" )
 		{
@@ -284,99 +285,240 @@ void testApp::update() {
     
       if(count%50 == 1){
          for(int i=0; i<leftInvaders1.size(); i++){
-                leftInvaders1[i].setPosition(leftInvaders1[i].getPosition().x + xincrement, leftInvaders1[i].getPosition().y);
+                leftInvaders1[i].setPosition(leftInvaders1[i].getPosition().x + xLincrement, leftInvaders1[i].getPosition().y);
                 leftInvaders1[i].update();
          }
          for(int i=0; i<leftInvaders2.size(); i++){
-             leftInvaders2[i].setPosition(leftInvaders2[i].getPosition().x + xincrement, leftInvaders2[i].getPosition().y);
+             leftInvaders2[i].setPosition(leftInvaders2[i].getPosition().x + xLincrement, leftInvaders2[i].getPosition().y);
              leftInvaders2[i].update();
          }
          for(int i=0; i<leftInvaders3.size(); i++){
-             leftInvaders3[i].setPosition(leftInvaders3[i].getPosition().x + xincrement, leftInvaders3[i].getPosition().y);
+             leftInvaders3[i].setPosition(leftInvaders3[i].getPosition().x + xLincrement, leftInvaders3[i].getPosition().y);
              leftInvaders3[i].update();
          }
          for(int i=0; i<leftInvaders4.size(); i++){
-             leftInvaders4[i].setPosition(leftInvaders4[i].getPosition().x + xincrement, leftInvaders4[i].getPosition().y);
+             leftInvaders4[i].setPosition(leftInvaders4[i].getPosition().x + xLincrement, leftInvaders4[i].getPosition().y);
              leftInvaders4[i].update();
          }
        for(int i=0; i<rightInvaders1.size(); i++){
-             rightInvaders1[i].setPosition(rightInvaders1[i].getPosition().x + xincrement, rightInvaders1[i].getPosition().y);
+             rightInvaders1[i].setPosition(rightInvaders1[i].getPosition().x + xRincrement, rightInvaders1[i].getPosition().y);
              rightInvaders1[i].update();
              }
          for(int i=0; i<rightInvaders2.size(); i++){
-             rightInvaders2[i].setPosition(rightInvaders2[i].getPosition().x + xincrement, rightInvaders2[i].getPosition().y);
+             rightInvaders2[i].setPosition(rightInvaders2[i].getPosition().x + xRincrement, rightInvaders2[i].getPosition().y);
              rightInvaders2[i].update();
              
          }
          for(int i=0; i<rightInvaders3.size(); i++){
-             rightInvaders3[i].setPosition(rightInvaders3[i].getPosition().x + xincrement, rightInvaders3[i].getPosition().y);
+             rightInvaders3[i].setPosition(rightInvaders3[i].getPosition().x + xRincrement, rightInvaders3[i].getPosition().y);
              rightInvaders3[i].update();
              
          }
          for(int i=0; i<rightInvaders4.size(); i++){
-             rightInvaders4[i].setPosition(rightInvaders4[i].getPosition().x + xincrement, rightInvaders4[i].getPosition().y);
+             rightInvaders4[i].setPosition(rightInvaders4[i].getPosition().x + xRincrement, rightInvaders4[i].getPosition().y);
              rightInvaders4[i].update();
          }
 
     }
         
+    if(rightInvaders4.size() > 0){
     for(int i=0; i<rightInvaders4.size(); i++){
-        if (rightInvaders4[i].getPosition().x >= xlimit)  moveDown = true;
+        if (rightInvaders4[i].getPosition().x >= xlimit){  
+            moveRightDown = true;
+            printf("case 1 \n");
+        }
     }
+    }
+    else if(rightInvaders4.size() < 1 && rightInvaders3.size() > 0 ){
+        for(int i=0; i<rightInvaders3.size(); i++){
+            if (rightInvaders3[i].getPosition().x >= xlimit ){
+                moveRightDown = true;
+                printf("case 2 \n");
+            } 
+            }
+    }
+    else if(rightInvaders4.size() < 1 && rightInvaders3.size() < 1 && rightInvaders2.size() > 0){
+        for(int i=0; i<rightInvaders2.size(); i++){
+            if (rightInvaders2[i].getPosition().x >= xlimit){
+                moveRightDown = true;
+                printf("case 3 \n");  
+            }
+        }
+    }
+    else if(rightInvaders4.size() < 1 && rightInvaders3.size() < 1 && rightInvaders2.size() < 1 && rightInvaders1.size() > 0){
+        for(int i=0; i<rightInvaders1.size(); i++){
+            if (rightInvaders1[i].getPosition().x >= xlimit)  {
+                moveRightDown = true;
+                printf("case 4 \n");
+            } 
+
+        }
+        
+    }
+
+    if(rightInvaders1.size() > 0){
+        for(int i=0; i<rightInvaders1.size(); i++){
+            if (rightInvaders1[i].getPosition().x <= xmin + ofGetWidth()/2){  
+                moveRightDown = true;
+                printf("case 1 \n");
+            }
+        }
+    }
+    else if(rightInvaders1.size() < 1 && rightInvaders2.size() > 0 ){
+        for(int i=0; i<rightInvaders2.size(); i++){
+            if (rightInvaders2[i].getPosition().x <= xmin + ofGetWidth()/2 ){
+                moveRightDown = true;
+                printf("case 2 \n");
+            } 
+        }
+    }
+    else if(rightInvaders1.size() < 1 && rightInvaders2.size() < 1 && rightInvaders3.size() > 0){
+        for(int i=0; i<rightInvaders3.size(); i++){
+            if (rightInvaders3[i].getPosition().x <= xmin + ofGetWidth()/2){
+                moveRightDown = true;
+                printf("case 3 \n");  
+            }
+        }
+    }
+    else if(rightInvaders1.size() < 1 && rightInvaders3.size() < 1 && rightInvaders2.size() < 1 && rightInvaders4.size() > 0){
+        for(int i=0; i<rightInvaders4.size(); i++){
+            if (rightInvaders4[i].getPosition().x <= xmin + ofGetWidth()/2)  {
+                moveRightDown = true;
+                printf("case 4 \n");
+            } 
+            
+        }
+        
+    }
+
     
-    for(int i=0; i<leftInvaders1.size(); i++){
-        if (leftInvaders1[i].getPosition().x <= xmin)  moveDown = true;
+    if(leftInvaders1.size() > 0){
+     for(int i=0; i<leftInvaders1.size(); i++){
+         if (leftInvaders1[i].getPosition().x <= xmin) {
+             moveLeftDown = true;
+             printf("x pos: %f \n",leftInvaders1[i].getPosition().x );
+             printf("x limit: %f \n", xmin);
+         } 
+        }
+     }
+     else if(leftInvaders2.size() > 0 && leftInvaders1.size() < 1){
+         for(int i=0; i<leftInvaders2.size(); i++){
+             if (leftInvaders2[i].getPosition().x <= xmin){
+                  moveLeftDown = true;
+            } 
+         }
+     }
+     else if(leftInvaders2.size() < 1 && leftInvaders1.size() < 1 && leftInvaders3.size() > 0){
+         for(int i=0; i<leftInvaders3.size(); i++){
+             if (leftInvaders3[i].getPosition().x <= xmin ) {
+                  moveLeftDown = true;
+                 printf("case 7 \n");
+             } 
+
+         }
+     }
+     else if(leftInvaders2.size() < 1 && leftInvaders1.size() < 1 && leftInvaders3.size() < 1 && leftInvaders4.size() > 0){
+         for(int i=0; i<leftInvaders4.size(); i++){
+             if (leftInvaders4[i].getPosition().x <= xmin)  {
+                  moveLeftDown = true;
+                 printf("case 8 \n");
+             } 
+
+         }
+         
+     }
+
+    if(leftInvaders4.size() > 0){
+        for(int i=0; i<leftInvaders4.size(); i++){
+            if (leftInvaders4[i].getPosition().x >= xlimit - ofGetWidth()/2) {
+                moveLeftDown = true;
+                
+                printf("x pos: %f \n",leftInvaders4[i].getPosition().x );
+                printf("x limit: %f \n", xmin);
+            } 
+        }
     }
+    else if(leftInvaders3.size() > 0 && leftInvaders4.size() < 1){
+        for(int i=0; i<leftInvaders3.size(); i++){
+            if (leftInvaders3[i].getPosition().x >= xlimit - ofGetWidth()/2){
+                moveLeftDown = true;
+            } 
+        }
+    }
+    else if(leftInvaders2.size() < 3 && leftInvaders1.size() < 4 && leftInvaders2.size() > 0){
+        for(int i=0; i<leftInvaders2.size(); i++){
+            if (leftInvaders2[i].getPosition().x >= xlimit - ofGetWidth()/2) {
+                moveLeftDown = true;
+                printf("case 7 \n");
+            } 
+        }
+    }
+    else if(leftInvaders2.size() < 1 && leftInvaders3.size() < 1 && leftInvaders4.size() < 1 && leftInvaders1.size() > 0){
+        for(int i=0; i<leftInvaders1.size(); i++){
+            if (leftInvaders1[i].getPosition().x >= xlimit - ofGetWidth()/2)  {
+                moveLeftDown = true;
+                printf("case 8 \n");
+            } 
+            
+        }
+       
+    
+    }
+
        
     //SHIFT EVERYONE DOWN A ROW WHEN WE HIT THE EDGE
         
-    if(moveDown){
+    if(moveLeftDown){
         printf("incremement!");
         for(int i=0; i<leftInvaders1.size(); i++){
-            leftInvaders1[i].setPosition(leftInvaders1[i].getPosition().x + xincrement*-1, leftInvaders1[i].getPosition().y + yincrement);
+            leftInvaders1[i].setPosition(leftInvaders1[i].getPosition().x + xLincrement*-1, leftInvaders1[i].getPosition().y + yincrement);
             leftInvaders1[i].update();
         }
         for(int i=0; i<leftInvaders2.size(); i++){
-            leftInvaders2[i].setPosition(leftInvaders2[i].getPosition().x + xincrement*-1, leftInvaders2[i].getPosition().y+ yincrement);
+            leftInvaders2[i].setPosition(leftInvaders2[i].getPosition().x + xLincrement*-1, leftInvaders2[i].getPosition().y+ yincrement);
             leftInvaders2[i].update();
         }
         for(int i=0; i<leftInvaders3.size(); i++){
-            leftInvaders3[i].setPosition(leftInvaders3[i].getPosition().x + xincrement*-1, leftInvaders3[i].getPosition().y+ yincrement);
+            leftInvaders3[i].setPosition(leftInvaders3[i].getPosition().x + xLincrement*-1, leftInvaders3[i].getPosition().y+ yincrement);
             leftInvaders3[i].update();
         }
         for(int i=0; i<leftInvaders4.size(); i++){
-            leftInvaders4[i].setPosition(leftInvaders4[i].getPosition().x + xincrement*-1, leftInvaders4[i].getPosition().y+ yincrement);
+            leftInvaders4[i].setPosition(leftInvaders4[i].getPosition().x + xLincrement*-1, leftInvaders4[i].getPosition().y+ yincrement);
             leftInvaders4[i].update();
         }
+        xLincrement = xLincrement * -1;
+        moveLeftDown = false;    
+    }
+    if(moveRightDown){
         for(int i=0; i<rightInvaders1.size(); i++){
-            rightInvaders1[i].setPosition(rightInvaders1[i].getPosition().x+ xincrement*-1, rightInvaders1[i].getPosition().y+ yincrement);
+            rightInvaders1[i].setPosition(rightInvaders1[i].getPosition().x+ xRincrement*-1, rightInvaders1[i].getPosition().y+ yincrement);
             rightInvaders1[i].update();
         }
         for(int i=0; i<rightInvaders2.size(); i++){
-            rightInvaders2[i].setPosition(rightInvaders2[i].getPosition().x + xincrement*-1, rightInvaders2[i].getPosition().y+ yincrement);
+            rightInvaders2[i].setPosition(rightInvaders2[i].getPosition().x + xRincrement*-1, rightInvaders2[i].getPosition().y+ yincrement);
             rightInvaders2[i].update();
             
         }
         for(int i=0; i<rightInvaders3.size(); i++){
-            rightInvaders3[i].setPosition(rightInvaders3[i].getPosition().x + xincrement*-1, rightInvaders3[i].getPosition().y+ yincrement);
+            rightInvaders3[i].setPosition(rightInvaders3[i].getPosition().x + xRincrement*-1, rightInvaders3[i].getPosition().y+ yincrement);
             rightInvaders3[i].update();
             
         }
         for(int i=0; i<rightInvaders4.size(); i++){
-            rightInvaders4[i].setPosition(rightInvaders4[i].getPosition().x + xincrement*-1, rightInvaders4[i].getPosition().y+ yincrement);
+            rightInvaders4[i].setPosition(rightInvaders4[i].getPosition().x + xRincrement*-1, rightInvaders4[i].getPosition().y+ yincrement);
             rightInvaders4[i].update();
         }
-        xincrement = xincrement * -1;
-        moveDown = false;
+        xRincrement = xRincrement * -1;
+        moveRightDown = false;
 
     }
     
     //INVADERS SEND BULLETS
-    if(int(ofRandom(0,100))== 1){
-    printf("shoot!");
+    if(int(ofRandom(0,100))== 1 && leftInvaders1.size()>0){
     ofxBox2dCircle  c2;
     c2.setPhysics(0.1, 1.0, 0.1);
     c2.setup(box2d.getWorld(), leftInvaders1[leftInvaders1.size() - 1].getPosition().x, leftInvaders1[leftInvaders1.size() - 1].getPosition().y + leftInvaders1[3].getWidth()/2 + 40, 5);
+        c2.setVelocity(0, 10);
     c2.setData(new Data());
     Data * sd2 = (Data*)c2.getData();
     sd2->soundID = ofRandom(0, N_SOUNDS);
@@ -384,7 +526,91 @@ void testApp::update() {
     sd2->type = 0;
     bullets.push_back(c2);
     }
-
+    if(int(ofRandom(0,100))== 1 && leftInvaders2.size()>0){
+        ofxBox2dCircle  c2;
+        c2.setPhysics(0.1, 1.0, 0.1);
+        c2.setup(box2d.getWorld(), leftInvaders2[leftInvaders2.size() - 1].getPosition().x, leftInvaders2[leftInvaders2.size() - 1].getPosition().y + leftInvaders2[leftInvaders2.size() - 1].getWidth()/2 + 40, 5);
+        c2.setVelocity(0, 10);
+        c2.setData(new Data());
+        Data * sd2 = (Data*)c2.getData();
+        sd2->soundID = ofRandom(0, N_SOUNDS);
+        sd2->hit	= false;		
+        sd2->type = 0;
+        bullets.push_back(c2);
+    }
+    if(int(ofRandom(0,100))== 1  && leftInvaders3.size()>0){
+        ofxBox2dCircle  c2;
+        c2.setPhysics(0.1, 1.0, 0.1);
+        c2.setup(box2d.getWorld(), leftInvaders3[leftInvaders3.size() - 1].getPosition().x, leftInvaders3[leftInvaders3.size() - 1].getPosition().y + leftInvaders3[leftInvaders3.size() - 1].getWidth()/2 + 40, 5);
+        c2.setVelocity(0, 10);
+        c2.setData(new Data());
+        Data * sd2 = (Data*)c2.getData();
+        sd2->soundID = ofRandom(0, N_SOUNDS);
+        sd2->hit	= false;		
+        sd2->type = 0;
+        bullets.push_back(c2);
+    }
+    if(int(ofRandom(0,100))== 1  && leftInvaders4.size()>0){
+        ofxBox2dCircle  c2;
+        c2.setPhysics(0.1, 1.0, 0.1);
+        c2.setup(box2d.getWorld(), leftInvaders4[leftInvaders4.size() - 1].getPosition().x, leftInvaders4[leftInvaders4.size() - 1].getPosition().y + leftInvaders1[leftInvaders4.size() - 1].getWidth()/2 + 40, 5);
+        c2.setVelocity(0, 10);
+        c2.setData(new Data());
+        Data * sd2 = (Data*)c2.getData();
+        sd2->soundID = ofRandom(0, N_SOUNDS);
+        sd2->hit	= false;		
+        sd2->type = 0;
+        bullets.push_back(c2);
+    }
+    if(int(ofRandom(0,100))== 1  && rightInvaders1.size()>0){
+        ofxBox2dCircle  c2;
+        c2.setPhysics(0.1, 1.0, 0.1);
+        c2.setup(box2d.getWorld(), rightInvaders1[rightInvaders1.size() - 1].getPosition().x, rightInvaders1[rightInvaders1.size() - 1].getPosition().y + rightInvaders1[rightInvaders1.size() - 1].getWidth()/2 + 40, 5);
+        c2.setVelocity(0, 10);
+        c2.setData(new Data());
+        Data * sd2 = (Data*)c2.getData();
+        sd2->soundID = ofRandom(0, N_SOUNDS);
+        sd2->hit	= false;		
+        sd2->type = 0;
+        bullets.push_back(c2);
+    }
+    if(int(ofRandom(0,100))== 1 && rightInvaders2.size()>0){
+        ofxBox2dCircle  c2;
+        c2.setPhysics(0.1, 1.0, 0.1);
+        c2.setup(box2d.getWorld(), rightInvaders2[rightInvaders2.size() - 1].getPosition().x, rightInvaders2[rightInvaders2.size() - 1].getPosition().y + rightInvaders2[rightInvaders2.size() - 1].getWidth()/2 + 40, 5);
+        c2.setVelocity(0, 10);
+        c2.setData(new Data());
+        Data * sd2 = (Data*)c2.getData();
+        sd2->soundID = ofRandom(0, N_SOUNDS);
+        sd2->hit	= false;		
+        sd2->type = 0;
+        bullets.push_back(c2);
+    }
+    if(int(ofRandom(0,100))== 1 && rightInvaders3.size()>0){
+        ofxBox2dCircle  c2;
+        c2.setPhysics(0.1, 1.0, 0.1);
+        c2.setup(box2d.getWorld(), rightInvaders3[rightInvaders3.size() - 1].getPosition().x, rightInvaders3[rightInvaders3.size() - 1].getPosition().y + rightInvaders3[rightInvaders3.size() - 1].getWidth()/2 + 40, 5);
+        c2.setVelocity(0, 10);
+        c2.setData(new Data());
+        Data * sd2 = (Data*)c2.getData();
+        sd2->soundID = ofRandom(0, N_SOUNDS);
+        sd2->hit	= false;		
+        sd2->type = 0;
+        bullets.push_back(c2);
+    }
+    if(int(ofRandom(0,100))== 1 && rightInvaders4.size()>0){
+        ofxBox2dCircle  c2;
+        c2.setPhysics(0.1, 1.0, 0.1);
+        c2.setup(box2d.getWorld(), rightInvaders4[rightInvaders4.size() - 1].getPosition().x, rightInvaders4[rightInvaders4.size() - 1].getPosition().y + rightInvaders4[rightInvaders4.size() - 1].getWidth()/2 + 40, 5);
+        c2.setVelocity(0, 10);
+        c2.setData(new Data());
+        Data * sd2 = (Data*)c2.getData();
+        sd2->soundID = ofRandom(0, N_SOUNDS);
+        sd2->hit	= false;		
+        sd2->type = 0;
+        bullets.push_back(c2);
+    }
+   
     
     //DELETE WHEN THERE'S A HIT
         
@@ -486,13 +712,14 @@ void testApp::update() {
     
     for(int i=0; i<bullets.size(); i++){
         Data * theData = (Data*)bullets[i].getData();
-        if(theData->hit == true || bullets[i].getPosition().y < 0 || bullets[i].getPosition().y > ofGetHeight()-10 ){
-            theData->hit = false;  
+        if(theData->hit == true|| bullets[i].getPosition().y < 0 || bullets[i].getPosition().y > ofGetHeight() ){
             //     rightInvaders4[i].movie->stop();
             //   delete rightInvaders4[i].movie;
             box2d.getWorld()->DestroyBody(bullets[i].body);
             //     rightInvaderVideos.erase(rightInvaderVideos.begin()+i+rows*3);
             bullets.erase(bullets.begin()+i);  
+            theData->hit = false;  
+            bullets[i].update();
         }
 
         
@@ -503,14 +730,9 @@ void testApp::update() {
         Data * theData = (Data*)players[i].getData();
         if(theData->hit == true ){
             theData->hit = false;  
-            theData->paddleopacity =  theData->paddleopacity - 125;
-            //     rightInvaders4[i].movie->stop();
-            //   delete rightInvaders4[i].movie;
-            box2d.getWorld()->DestroyBody(bullets[i].body);
-            //     rightInvaderVideos.erase(rightInvaderVideos.begin()+i+rows*3);
-            bullets.erase(bullets.begin()+i);  
+            theData->paddleopacity =  theData->paddleopacity - 50;
+           
         }
-        
         
     }
 
@@ -599,9 +821,9 @@ void testApp::keyPressed(int key) {
     //EVENTUALLY KNOW WHICH PLAYER IS SHOOTING
     if (key == 'L' || key == 'l'){
     ofxBox2dCircle  c1;
-    c1.setPhysics(0.1, 1.0, 0.1);
-    c1.setup(box2d.getWorld(), players[0].getPosition().x, players[0].getPosition().y, 5);
-    c1.setVelocity(0, 100);
+        c1.setPhysics(0.1, 1.0, 0.1);
+    c1.setup(box2d.getWorld(), players[0].getPosition().x, players[0].getPosition().y - players[0].getHeight()*2, 5);
+    c1.setVelocity(0, -50);
     c1.setData(new Data());
     Data * sd1 = (Data*)c1.getData();
     sd1->soundID = ofRandom(0, N_SOUNDS);
@@ -612,8 +834,8 @@ void testApp::keyPressed(int key) {
 if (key == 'R' || key == 'r'){
         ofxBox2dCircle  c2;
         c2.setPhysics(0.1, 1.0, 0.1);
-        c2.setup(box2d.getWorld(), players[1].getPosition().x, players[1].getPosition().y, 5);
-        c2.setVelocity(0, 100);
+        c2.setup(box2d.getWorld(), players[1].getPosition().x, players[1].getPosition().y - players[1].getHeight()*2, 5);
+        c2.setVelocity(0, -50);
         c2.setData(new Data());
         Data * sd2 = (Data*)c2.getData();
         sd2->soundID = ofRandom(0, N_SOUNDS);

@@ -124,14 +124,14 @@ public:
     vector		<Invader>  rightInvaders5;
     ofTrueTypeFont	verdana22;
     ofImage vimeologo;
-    int score1, score2, counter, count, joystick1, joystick2, mapped_joystick1, mapped_joystick2, numInvaders, columns, rows, yincrement, xincrement, xlimit, xmin, paddlewidth, bulletcounter, paddleopacity ;
+    int score1, score2, counter, count, joystick1, joystick2, mapped_joystick1, mapped_joystick2, numInvaders, columns, rows, yincrement, xLincrement, xRincrement, xlimit, xmin, paddlewidth, bulletcounter, paddleopacity ;
     ofImage user1, user2;
     ofxOscSender sender1, sender2;
     ofxOscReceiver	receiver;
     int port;
     char * host;
     string user;
-    bool loaduser, user1load, user2load, moveDown;
+    bool loaduser, user1load, user2load, moveRightDown, moveLeftDown;
     int whichuser;
     int paddleattraction;
     b2Vec2 pveloc;
