@@ -633,28 +633,18 @@ void testApp::update() {
         }
         if(theData->paddleopacity == 0)
             theData->killed = true;
-        
-    }
-    Data * theData0 = (Data*)players[0].getData();
-    if(theData0->killed == true){
-        ofSetColor(0);
-        verdana22.drawString("YOU LOSE!", ofGetWidth()/4,ofGetHeight()/2);
-        verdana22.drawString("YOU WIN!", ofGetWidth()/4 + ofGetWidth()/4*3, ofGetHeight()/2);
-        stopGame = true;
-        counter++;
-        startGameBool = false;
-    }
-    Data * theData1 = (Data*)players[1].getData();
-    if(theData1->killed == true){
-        ofSetColor(0);
-        verdana22.drawString("YOU WIN!", ofGetWidth()/4,ofGetHeight()/2);
-        verdana22.drawString("YOU LOSE!", ofGetWidth()/4 + ofGetWidth()/4*3, ofGetHeight()/2);
-        stopGame = true;
-        counter++;
-        startGameBool = false;
+        }
+            
+            Data * theData0 = (Data*)players[0].getData();
+            if(theData0->killed == true){
+                player1win = true;
+            }
+            Data * theData1 = (Data*)players[1].getData();
+            if(theData1->killed == true){
+                player2win = true;
+            }
 
-    }
-            if(stopGame && counter > 200){
+                if(stopGame == true && counter > 200){
                 for(int i = 0; i<leftInvaders1.size(); i++){
                     box2d.world->DestroyBody(leftInvaders1[i].body);
                    // delete leftInvaders1[i].movie;
@@ -693,7 +683,10 @@ void testApp::update() {
                 for(int i = 0; i<players.size(); i++){
                     box2d.world->DestroyBody(players[i].body);
                     // delete rightInvaders4[i].movie;
-                }
+                }        
+                player1win = false;
+                player2win = false;
+                startGameBool = false;
                 leftInvaders1.clear();
                 leftInvaders2.clear();
                 leftInvaders3.clear();
@@ -710,8 +703,8 @@ void testApp::update() {
             }
     
     count++;
+}
             
-        }
 }
 
 //--------------------------------------------------------------
@@ -762,11 +755,13 @@ void testApp::draw() {
         }
         
     }
-    if(startGameBool){
+ 
+
+    if(drawGame){
+    
+        ofLine(ofGetWidth()/2, 0, ofGetWidth()/2, ofGetHeight());
+
         
-
-    ofLine(ofGetWidth()/2, 0, ofGetWidth()/2, ofGetHeight());
-
     //DRAW THE INVADERS
     
     for(int i=0; i<leftInvaders1.size(); i++){
@@ -787,22 +782,38 @@ void testApp::draw() {
     for(int i=0; i<rightInvaders2.size(); i++){
         rightInvaders2[i].draw();
     }
-    
-
-           for(int i=0; i<rightInvaders3.size(); i++){
+    for(int i=0; i<rightInvaders3.size(); i++){
         rightInvaders3[i].draw();
     }
     for(int i=0; i<rightInvaders4.size(); i++){
         rightInvaders4[i].draw();
     }
-        for(int i = 0; i<bullets.size(); i++){
-            ofSetHexColor(0x4ccae9);
-            bullets[i].draw();
-        }
-        
-
+    for(int i = 0; i<bullets.size(); i++){
+        ofSetHexColor(0x4ccae9);
+        bullets[i].draw();
+    }
     
     }
+    
+    if(player1win){
+        ofSetColor(245, 58, 135);
+        verdana22.drawString("YOU LOSE!", ofGetWidth()/4, ofGetHeight()/2);
+        verdana22.drawString("YOU WIN!", ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2);
+        stopGame = true;
+        counter++;
+        printf("counter: %d\n", counter);
+        drawGame = false;
+    }
+    if(player2win){
+        ofSetColor(245, 58, 135);
+        verdana22.drawString("YOU WIN!", ofGetWidth()/4, ofGetHeight()/2);
+        verdana22.drawString("YOU LOSE!", ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2);
+        stopGame = true;
+        counter++;
+        printf("counter: %d\n", counter);
+        drawGame = false;
+    }
+
     ofSetColor(255, 255, 255);
     
     
@@ -817,7 +828,6 @@ void testApp::draw() {
               ofSetColor(255,255,255, data2->paddleopacity);
             user2.draw(players[1].getPosition().x, players[1].getPosition().y, players[1].getWidth() * 2, players[1].getWidth() * 2);
         }
-        
         else{
            for(int i=0; i<players.size(); i++) {
                 ofFill();
@@ -868,6 +878,7 @@ if (key == 'R' || key == 'r'){
 
 void testApp::startGame(){
     startGameBool = true;
+    drawGame = true;
     ofxBox2dRect player1;
     player1.setPhysics(0.1, 1.0, 0.0);
     player1.setup(box2d.getWorld(), 0, ofGetHeight()-10, paddlewidth, paddlewidth, b2_kinematicBody);

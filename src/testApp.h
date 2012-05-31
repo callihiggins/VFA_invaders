@@ -137,6 +137,6 @@ public:
     int whichuser, countdownnum, alpha, alphaincrement;
     int paddleattraction;
     b2Vec2 pveloc;
-    bool fullscreen,  startGameBool, startScreen,  countdown, countdownnumbool, drawusers, login;
+    bool fullscreen,  startGameBool, drawGame, player1win, player2win, startScreen,  countdown, countdownnumbool, drawusers, login;
 };
 
