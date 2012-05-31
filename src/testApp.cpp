@@ -9,6 +9,8 @@ void testApp::setup() {
     loaduser = false;
     user1load = false;
     user2load = false;
+    player1win = false;
+    player2win = false;
     whichuser = 0;
     loaduser = false;
     drawusers = false;
@@ -634,16 +636,31 @@ void testApp::update() {
         if(theData->paddleopacity == 0)
             theData->killed = true;
         }
-            
+            //IF YOU'VE BEEN HIT 3 TIMES
             Data * theData0 = (Data*)players[0].getData();
             if(theData0->killed == true){
-                player1win = true;
+                player2win = true;
             }
             Data * theData1 = (Data*)players[1].getData();
             if(theData1->killed == true){
+                player1win = true;
+            }
+            //IF YOU KILL ARE YOUR INVADERS
+            if(leftInvaders1.size() == 0 && leftInvaders2.size()==0 && leftInvaders3.size()==0 && leftInvaders4.size()==0){
+                player1win = true;
+            }
+            if(rightInvaders1.size() == 0 && rightInvaders2.size()==0 && rightInvaders3.size()==0 && rightInvaders4.size()==0){
                 player2win = true;
             }
+            
+            //IF THE INVADERS INVADE YOU
+            
+          if(rightInvaders1[rightInvaders1.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight() ||rightInvaders2[ rightInvaders2.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight() ||rightInvaders3[rightInvaders3.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight() ||rightInvaders4[rightInvaders4.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight())
+              player1win;
 
+            if(leftInvaders1[leftInvaders1.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight() ||leftInvaders2[ leftInvaders2.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight() ||leftInvaders3[leftInvaders3.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight() ||leftInvaders4[leftInvaders4.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight())
+                player2win;
+            
                 if(stopGame == true && counter > 200){
                 for(int i = 0; i<leftInvaders1.size(); i++){
                     box2d.world->DestroyBody(leftInvaders1[i].body);
@@ -794,17 +811,7 @@ void testApp::draw() {
     }
     
     }
-    
     if(player1win){
-        ofSetColor(245, 58, 135);
-        verdana22.drawString("YOU LOSE!", ofGetWidth()/4, ofGetHeight()/2);
-        verdana22.drawString("YOU WIN!", ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2);
-        stopGame = true;
-        counter++;
-        printf("counter: %d\n", counter);
-        drawGame = false;
-    }
-    if(player2win){
         ofSetColor(245, 58, 135);
         verdana22.drawString("YOU WIN!", ofGetWidth()/4, ofGetHeight()/2);
         verdana22.drawString("YOU LOSE!", ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2);
@@ -813,6 +820,16 @@ void testApp::draw() {
         printf("counter: %d\n", counter);
         drawGame = false;
     }
+    if(player2win){
+        ofSetColor(245, 58, 135);
+        verdana22.drawString("YOU LOSE!", ofGetWidth()/4, ofGetHeight()/2);
+        verdana22.drawString("YOU WIN!", ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2);
+        stopGame = true;
+        counter++;
+        printf("counter: %d\n", counter);
+        drawGame = false;
+    }
+    
 
     ofSetColor(255, 255, 255);
     
