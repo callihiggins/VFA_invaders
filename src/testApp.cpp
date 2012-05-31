@@ -12,6 +12,9 @@ void testApp::setup() {
     player1win = false;
     player2win = false;
     whichuser = 0;
+    lbullettimer = 0;
+    rbullettimer = 0;
+    bulletinterval = 200;
     loaduser = false;
     drawusers = false;
     countdownnum = 400;
@@ -415,9 +418,13 @@ void testApp::update() {
         xRincrement = xRincrement * -1;
         moveRightDown = false;
     }
-    
+            
+           lbullettimer++;
+            rbullettimer++;
+
+            
     //INVADERS SEND BULLETS EVERY SO OFTEN
-    if(int(ofRandom(0,100))== 1 && leftInvaders1.size()>0){
+    if(int(ofRandom(0,bulletinterval))== 1 && leftInvaders1.size()>0){
     ofxBox2dCircle  c2;
     c2.setPhysics(0.1, 1.0, 0.1);
     c2.setup(box2d.getWorld(), leftInvaders1[leftInvaders1.size() - 1].getPosition().x, leftInvaders1[leftInvaders1.size() - 1].getPosition().y + leftInvaders1[3].getWidth()/2 + 40, 5);
@@ -429,7 +436,7 @@ void testApp::update() {
     sd2->type = 0;
     bullets.push_back(c2);
     }
-    if(int(ofRandom(0,100))== 1 && leftInvaders2.size()>0){
+    if(int(ofRandom(0,bulletinterval))== 1 && leftInvaders2.size()>0){
         ofxBox2dCircle  c2;
         c2.setPhysics(0.1, 1.0, 0.1);
         c2.setup(box2d.getWorld(), leftInvaders2[leftInvaders2.size() - 1].getPosition().x, leftInvaders2[leftInvaders2.size() - 1].getPosition().y + leftInvaders2[leftInvaders2.size() - 1].getWidth()/2 + 40, 5);
@@ -441,7 +448,7 @@ void testApp::update() {
         sd2->type = 0;
         bullets.push_back(c2);
     }
-    if(int(ofRandom(0,100))== 1  && leftInvaders3.size()>0){
+    if(int(ofRandom(0,bulletinterval))== 1  && leftInvaders3.size()>0){
         ofxBox2dCircle  c2;
         c2.setPhysics(0.1, 1.0, 0.1);
         c2.setup(box2d.getWorld(), leftInvaders3[leftInvaders3.size() - 1].getPosition().x, leftInvaders3[leftInvaders3.size() - 1].getPosition().y + leftInvaders3[leftInvaders3.size() - 1].getWidth()/2 + 40, 5);
@@ -453,7 +460,7 @@ void testApp::update() {
         sd2->type = 0;
         bullets.push_back(c2);
     }
-    if(int(ofRandom(0,100))== 1  && leftInvaders4.size()>0){
+    if(int(ofRandom(0,bulletinterval))== 1  && leftInvaders4.size()>0){
         ofxBox2dCircle  c2;
         c2.setPhysics(0.1, 1.0, 0.1);
         c2.setup(box2d.getWorld(), leftInvaders4[leftInvaders4.size() - 1].getPosition().x, leftInvaders4[leftInvaders4.size() - 1].getPosition().y + leftInvaders1[leftInvaders4.size() - 1].getWidth()/2 + 40, 5);
@@ -465,7 +472,7 @@ void testApp::update() {
         sd2->type = 0;
         bullets.push_back(c2);
     }
-    if(int(ofRandom(0,100))== 1  && rightInvaders1.size()>0){
+    if(int(ofRandom(0,bulletinterval))== 1  && rightInvaders1.size()>0){
         ofxBox2dCircle  c2;
         c2.setPhysics(0.1, 1.0, 0.1);
         c2.setup(box2d.getWorld(), rightInvaders1[rightInvaders1.size() - 1].getPosition().x, rightInvaders1[rightInvaders1.size() - 1].getPosition().y + rightInvaders1[rightInvaders1.size() - 1].getWidth()/2 + 40, 5);
@@ -477,7 +484,7 @@ void testApp::update() {
         sd2->type = 0;
         bullets.push_back(c2);
     }
-    if(int(ofRandom(0,100))== 1 && rightInvaders2.size()>0){
+    if(int(ofRandom(0,bulletinterval))== 1 && rightInvaders2.size()>0){
         ofxBox2dCircle  c2;
         c2.setPhysics(0.1, 1.0, 0.1);
         c2.setup(box2d.getWorld(), rightInvaders2[rightInvaders2.size() - 1].getPosition().x, rightInvaders2[rightInvaders2.size() - 1].getPosition().y + rightInvaders2[rightInvaders2.size() - 1].getWidth()/2 + 40, 5);
@@ -489,7 +496,7 @@ void testApp::update() {
         sd2->type = 0;
         bullets.push_back(c2);
     }
-    if(int(ofRandom(0,100))== 1 && rightInvaders3.size()>0){
+    if(int(ofRandom(0,bulletinterval))== 1 && rightInvaders3.size()>0){
         ofxBox2dCircle  c2;
         c2.setPhysics(0.1, 1.0, 0.1);
         c2.setup(box2d.getWorld(), rightInvaders3[rightInvaders3.size() - 1].getPosition().x, rightInvaders3[rightInvaders3.size() - 1].getPosition().y + rightInvaders3[rightInvaders3.size() - 1].getWidth()/2 + 40, 5);
@@ -501,7 +508,7 @@ void testApp::update() {
         sd2->type = 0;
         bullets.push_back(c2);
     }
-    if(int(ofRandom(0,100))== 1 && rightInvaders4.size()>0){
+    if(int(ofRandom(0,bulletinterval))== 1 && rightInvaders4.size()>0){
         ofxBox2dCircle  c2;
         c2.setPhysics(0.1, 1.0, 0.1);
         c2.setup(box2d.getWorld(), rightInvaders4[rightInvaders4.size() - 1].getPosition().x, rightInvaders4[rightInvaders4.size() - 1].getPosition().y + rightInvaders4[rightInvaders4.size() - 1].getWidth()/2 + 40, 5);
@@ -657,14 +664,33 @@ void testApp::update() {
             }
             
             //IF THE INVADERS INVADE YOU
+            if(rightInvaders1.size() > 0 )
+                if(rightInvaders1[rightInvaders1.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight())
+                    player1win;
+            if(rightInvaders2.size() > 0 )
+                if(rightInvaders2[rightInvaders2.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight())
+                    player1win;
+            if(rightInvaders3.size() > 0 )
+                if(rightInvaders3[rightInvaders3.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight())
+                    player1win;
+            if(rightInvaders4.size() > 0 )
+                if(rightInvaders4[rightInvaders4.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight())
+                    player1win;
             
-          if(rightInvaders1[rightInvaders1.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight() ||rightInvaders2[ rightInvaders2.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight() ||rightInvaders3[rightInvaders3.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight() ||rightInvaders4[rightInvaders4.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight())
-              player1win;
-
-            if(leftInvaders1[leftInvaders1.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight() ||leftInvaders2[ leftInvaders2.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight() ||leftInvaders3[leftInvaders3.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight() ||leftInvaders4[leftInvaders4.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight())
-                player2win;
-            
-                if(stopGame == true && counter > 200){
+            if(leftInvaders1.size() > 0 )
+                if(leftInvaders1[leftInvaders1.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight())
+                    player2win;
+            if(leftInvaders2.size() > 0 )
+                if(leftInvaders2[leftInvaders2.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight())
+                    player2win;
+            if(leftInvaders3.size() > 0 )
+                if(leftInvaders3[leftInvaders3.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight())
+                    player2win;
+            if(leftInvaders4.size() > 0 )
+                if(leftInvaders4[leftInvaders4.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight())
+                    player2win;
+         
+                if(stopGame == true){
                 for(int i = 0; i<leftInvaders1.size(); i++){
                     box2d.world->DestroyBody(leftInvaders1[i].body);
                    // delete leftInvaders1[i].movie;
@@ -703,9 +729,8 @@ void testApp::update() {
                 for(int i = 0; i<players.size(); i++){
                     box2d.world->DestroyBody(players[i].body);
                     // delete rightInvaders4[i].movie;
-                }        
-                player1win = false;
-                player2win = false;
+                }    
+                drawusers = false;
                 startGameBool = false;
                 leftInvaders1.clear();
                 leftInvaders2.clear();
@@ -717,13 +742,19 @@ void testApp::update() {
                 rightInvaders4.clear();
                 players.clear();
                 bullets.clear();
-                startScreen = true;    
-                drawusers = false;
-                counter = 0;
             }
+           
     
     count++;
 }
+    if(counter>200){
+        startScreen = true;    
+        player1win = false;
+        player2win = false;
+        counter = 0;
+        stopGame = false;
+    }
+
             
 }
 
@@ -749,20 +780,22 @@ void testApp::draw() {
         ofSetRectMode(OF_RECTMODE_CORNER);
         ofRect(ofGetWidth()/2, 0, ofGetWidth()/2, ofGetHeight());
         ofSetColor(255);
-        user1.draw(ofGetWidth()/4, ofGetWidth()/20, 100, 100);
-        verdana22.drawString(username1, ofGetWidth()/4, ofGetWidth()/20 + user1.width + 20);
+        ofSetRectMode(OF_RECTMODE_CORNER);
+        user1.draw(ofGetWidth()/4, ofGetHeight()/2, 150, 150);
         ofSetColor(0);
+        verdana22.drawString(username1, ofGetWidth()/4, ofGetHeight()/2 + user1.height + 75);
         verdana22.drawString("Right Player Tap!", ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2 + 100);
     }
     
     if(user1load &&  user2load){
         countdownnumbool = true;
         ofSetColor(255);
-        user1.draw(ofGetWidth()/4, ofGetWidth()/20, 100, 100);
-        user2.draw(ofGetWidth()/4 + ofGetWidth()/2, ofGetWidth()/20, 100, 100);
+        ofSetRectMode(OF_RECTMODE_CORNER);
+        user1.draw(ofGetWidth()/4, ofGetHeight()/2, 150, 150);
+        user2.draw(ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2, 150, 150);
         ofSetColor(0);
-        verdana22.drawString(username1, ofGetWidth()/4, ofGetWidth()/20 + user1.width + 20);
-        verdana22.drawString(username2, ofGetWidth()/4 + ofGetWidth()/2, ofGetWidth()/20 + user2.width + 20);
+        verdana22.drawString(username1, ofGetWidth()/4, ofGetHeight()/2 + user1.height + 75);
+        verdana22.drawString(username2, ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2 + user2.height + 75);        
         if(countdownnum > 300)
             verdana22.drawString("3", ofGetWidth()/2 , ofGetHeight()/2 + 100);
         if(countdownnum > 200 && countdownnum < 300 )
@@ -821,18 +854,32 @@ void testApp::draw() {
     
     }
     if(player1win){
-        ofSetColor(245, 58, 135);
-        verdana22.drawString("YOU WIN!", ofGetWidth()/4, ofGetHeight()/2);
-        verdana22.drawString("YOU LOSE!", ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2);
+        ofSetColor(0);
+        verdana22.drawString("YOU WIN!", ofGetWidth()/4, ofGetHeight()/2 - user1.height);
+        verdana22.drawString("YOU LOSE!", ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2 - user1.height);
+        ofSetColor(255);
+        ofSetRectMode(OF_RECTMODE_CORNER);
+        user1.draw(ofGetWidth()/4, ofGetHeight()/2, 150, 150);
+        user2.draw(ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2, 150, 150);
+        ofSetColor(0);
+        verdana22.drawString(username1, ofGetWidth()/4, ofGetHeight()/2 + user1.height + 75);
+        verdana22.drawString(username2, ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2 + user2.height + 75);
         stopGame = true;
         counter++;
         printf("counter: %d\n", counter);
         drawGame = false;
     }
     if(player2win){
-        ofSetColor(245, 58, 135);
-        verdana22.drawString("YOU LOSE!", ofGetWidth()/4, ofGetHeight()/2);
-        verdana22.drawString("YOU WIN!", ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2);
+        ofSetColor(0);
+        verdana22.drawString("YOU LOSE!", ofGetWidth()/4, ofGetHeight()/2 - user1.height);
+        verdana22.drawString("YOU WIN!", ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2 - user1.height);
+        ofSetColor(255);
+        ofSetRectMode(OF_RECTMODE_CORNER);
+        user1.draw(ofGetWidth()/4, ofGetHeight()/2, 150, 150);
+        user2.draw(ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2, 150, 150);
+        ofSetColor(0);
+        verdana22.drawString(username1, ofGetWidth()/4, ofGetHeight()/2 + user1.height + 50);
+        verdana22.drawString(username2, ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2 + user2.height + 75);
         stopGame = true;
         counter++;
         printf("counter: %d\n", counter);
@@ -848,11 +895,43 @@ void testApp::draw() {
             Data * data1 = (Data*)players[0].getData();
             ofSetColor(255,255,255, data1->paddleopacity);
             user1.draw(players[0].getPosition().x, players[0].getPosition().y, players[0].getWidth() * 2, players[0].getWidth() * 2);
-            verdana22.drawString(ofToString(score1, 1), 100,20);
-            verdana22.drawString(ofToString(score2, 1), ofGetWidth() - 50,20);
+            ofSetColor(255);
+            verdana22.drawString("Lives: ",25 , 25);
+            if(data1->paddleopacity == 255){
+                user1.draw(150, 25, 40,40);
+                user1.draw(200, 25, 40,40);
+                user1.draw(250, 25, 40,40);
+            }
+
+            if(data1->paddleopacity == 170){
+                user1.draw(200, 25, 40,40);    
+                user1.draw(150, 25, 40,40);
+            }
+            if(data1->paddleopacity == 85){
+                user1.draw(150, 25, 40,40);
+            }
+
              Data * data2 = (Data*)players[1].getData();
               ofSetColor(255,255,255, data2->paddleopacity);
             user2.draw(players[1].getPosition().x, players[1].getPosition().y, players[1].getWidth() * 2, players[1].getWidth() * 2);
+            ofSetColor(255);
+            verdana22.drawString("Lives: ",ofGetWidth()-300 , 25);
+            if(data2->paddleopacity == 255){
+                user2.draw(ofGetWidth()-100, 25, 40,40);
+                user2.draw(ofGetWidth()-150, 25, 40,40);
+                user2.draw(ofGetWidth()-200, 25, 40,40);
+            }
+            
+            if(data2->paddleopacity == 170){
+                user2.draw(ofGetWidth()-200, 50, 40,40);    
+                user2.draw(ofGetWidth()-150, 50, 40,40);
+            }
+            if(data2->paddleopacity == 85){
+                user2.draw(ofGetWidth()-200, 50, 40,40);
+            }
+            
+
+            
         }
         else{
            for(int i=0; i<players.size(); i++) {
@@ -868,8 +947,7 @@ void testApp::draw() {
 //--------------------------------------------------------------
 void testApp::keyPressed(int key) {
     
-    //EVENTUALLY KNOW WHICH PLAYER IS SHOOTING
-    if (key == 'L' || key == 'l'){
+    if (key == 'L' || key == 'l' && lbullettimer>50){
     ofxBox2dCircle  c1;
         c1.setPhysics(0.1, 1.0, 0.1);
     c1.setup(box2d.getWorld(), players[0].getPosition().x, players[0].getPosition().y - players[0].getHeight()*2, 5);
@@ -880,8 +958,9 @@ void testApp::keyPressed(int key) {
     sd1->hit	= false;		
     sd1->type = 0;
     bullets.push_back(c1);
+        lbullettimer = 0;
     }
-if (key == 'R' || key == 'r'){
+if (key == 'R' || key == 'r' && rbullettimer>50 ){
         ofxBox2dCircle  c2;
         c2.setPhysics(0.1, 1.0, 0.1);
         c2.setup(box2d.getWorld(), players[1].getPosition().x, players[1].getPosition().y - players[1].getHeight()*2, 5);
@@ -892,6 +971,7 @@ if (key == 'R' || key == 'r'){
         sd2->hit	= false;		
         sd2->type = 0;
         bullets.push_back(c2);
+    rbullettimer = 0;
     }
     
     if(key == 's' && startScreen == true){
