@@ -132,7 +132,7 @@ public:
     ofxOscReceiver	receiver;
     int port;
     char * host;
-    string user;
+    string user, username, username1, username2;
     bool loaduser, user1load, user2load, moveRightDown, moveLeftDown, stopGame;
     int whichuser, countdownnum, alpha, alphaincrement;
     int paddleattraction;

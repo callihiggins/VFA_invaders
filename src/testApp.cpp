@@ -141,6 +141,7 @@ void testApp::update() {
         if ( m.getAddress() == "/user" && login)
 		{
             user = m.getArgAsString( 0 );
+            username = m.getArgAsString( 1 );
             printf("got a user!");
             loaduser = true;
         }
@@ -150,6 +151,7 @@ void testApp::update() {
    
     if(loaduser && login && whichuser == 0){
         user1.loadImage(user);
+        username1 = username;
         whichuser = 1;
         user1load = true;
         loaduser = false;
@@ -157,6 +159,7 @@ void testApp::update() {
     
     if(loaduser && login && whichuser == 1){
         user2.loadImage(user);
+        username2 = username;
         whichuser = 0;
         user2load = true;
         loaduser = false;
@@ -747,13 +750,19 @@ void testApp::draw() {
         ofRect(ofGetWidth()/2, 0, ofGetWidth()/2, ofGetHeight());
         ofSetColor(255);
         user1.draw(ofGetWidth()/4, ofGetWidth()/20, 100, 100);
+        verdana22.drawString(username1, ofGetWidth()/4, ofGetWidth()/20 + user1.width + 20);
         ofSetColor(0);
         verdana22.drawString("Right Player Tap!", ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2 + 100);
     }
     
     if(user1load &&  user2load){
         countdownnumbool = true;
+        ofSetColor(255);
+        user1.draw(ofGetWidth()/4, ofGetWidth()/20, 100, 100);
+        user2.draw(ofGetWidth()/4 + ofGetWidth()/2, ofGetWidth()/20, 100, 100);
         ofSetColor(0);
+        verdana22.drawString(username1, ofGetWidth()/4, ofGetWidth()/20 + user1.width + 20);
+        verdana22.drawString(username2, ofGetWidth()/4 + ofGetWidth()/2, ofGetWidth()/20 + user2.width + 20);
         if(countdownnum > 300)
             verdana22.drawString("3", ofGetWidth()/2 , ofGetHeight()/2 + 100);
         if(countdownnum > 200 && countdownnum < 300 )
