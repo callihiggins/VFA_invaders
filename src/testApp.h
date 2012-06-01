@@ -9,7 +9,7 @@
 #define N_SOUNDS 5
 // listen on port 12345
 //port is 9002 at nyu
-#define PORT 12346 
+//#define PORT 12346 
 #define NUM_MSG_STRINGS 20
 #include <stdio.h>
 #include <stdlib.h>
@@ -73,9 +73,9 @@ public:
             ofSetRectMode(OF_RECTMODE_CENTER);
 			ofTranslate(getPosition());
 			ofRotateZ(getRotation());
-            ofSetColor(theData->color);
-          //  movie->draw(0,0,width,width);
-            ofRect(0,0, width, width);
+            ofSetColor(255);
+            movie->draw(0,0,width,width);
+          //  ofRect(0,0, width, width);
 			ofDrawBitmapString(ofToString(theData->id), -5, 5);
 			ofPopMatrix();
 		}
@@ -110,9 +110,12 @@ public:
 	// when the ball hits we play this sound
 	ofSoundPlayer  sound[N_SOUNDS];
 	ofxBox2d						box2d;			  //	the box2d world
-	vector		<ofxBox2dCircle>	bullets;		  //	default box2d circles
-	vector		<ofxBox2dRect>	players;
-	vector		<ofVideoPlayer*>	leftInvaderVideos;
+	ofRectangle bounds;
+    vector		<ofxBox2dCircle>	invaderbullets;		  //	default box2d circles
+    vector		<ofxBox2dCircle>	leftbullets;		  //	default box2d circles
+    vector		<ofxBox2dCircle>	rightbullets;		  //	default box2d circles
+    vector		<ofxBox2dRect>	players;
+	vector		<ofVideoPlayer*>	invaderVideos;
     vector		<ofVideoPlayer*>	rightInvaderVideos;
     vector		<Invader>  leftInvaders1;
     vector		<Invader>  leftInvaders2;
@@ -124,8 +127,8 @@ public:
     vector		<Invader>  rightInvaders3;
     vector		<Invader>  rightInvaders4;
     vector		<Invader>  rightInvaders5;
-    ofTrueTypeFont	verdana22;
-    ofImage vimeologo;
+    ofTrueTypeFont	aerofrog82;
+    ofImage vimeologo, backgroundimg;
     int score1, score2, counter, count, joystick1, joystick2, mapped_joystick1, mapped_joystick2, numInvaders, columns, rows, yincrement, xLincrement, xRincrement, xlimit, xmin, paddlewidth, bulletcounter, paddleopacity, lbullettimer, bulletinterval, rbullettimer ;
     ofImage user1, user2;
     ofxOscSender sender1, sender2;

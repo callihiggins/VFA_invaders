@@ -4,6 +4,7 @@
 void testApp::setup() {
 	ofSetVerticalSync(true);
 	ofBackgroundHex(0xfdefc2);
+    ofEnableAlphaBlending();
     ofTrueTypeFont::setGlobalDpi(72);
     ofSetFrameRate(60);
     loaduser = false;
@@ -12,6 +13,7 @@ void testApp::setup() {
     player1win = false;
     player2win = false;
     whichuser = 0;
+    drawGame = false;
     lbullettimer = 0;
     rbullettimer = 0;
     bulletinterval = 200;
@@ -26,19 +28,21 @@ void testApp::setup() {
     alphaincrement = 1;
     moveRightDown = false;
     moveLeftDown = false;
-    verdana22.loadFont("verdana.ttf", 22, true, true);
-	verdana22.setLineHeight(18.0f);
-	verdana22.setLetterSpacing(1.037);
+    aerofrog82.loadFont("aerofrog.ttf", 82, true, true);
+	aerofrog82.setLineHeight(18.0f);
+	aerofrog82.setLetterSpacing(1.037);
     loadSettings("settings.xml");
     receiver.setup( port );
 	box2d.init();
   	box2d.setGravity(0, 10);
 	//box2d.createGround();
 	box2d.setFPS(30.0);
-    box2d.createBounds(ofGetWidth()/2, 0, 1 , ofGetHeight());
+    bounds.set(40, 77, 1820, 920);
+    box2d.createBounds(bounds);
+
     counter = 0;
     count = 0;
-    paddlewidth = ofGetWidth()/50;
+    paddlewidth = bounds.x + bounds.width/50;
 	// register the listener so that we get the events
 	ofAddListener(box2d.contactStartEvents, this, &testApp::contactStart);
 	ofAddListener(box2d.contactEndEvents, this, &testApp::contactEnd);
@@ -53,14 +57,15 @@ void testApp::setup() {
 	}
     
     vimeologo.loadImage("images/vimeo_logo.png");
-    
+    backgroundimg.loadImage("images/vimearcadeR.png");
+
     //right now i'm making two vectors for each side of movie. if running slowly, can put this into one vector and do a test if both shapes have been deleted before stopping and deleting the movie
-//    for(int i=0; i< 13; i++){
-//        ofVideoPlayer * v = new ofVideoPlayer();
-//        v->loadMovie("movies/fingers" + ofToString(i) +".mov");
-//        v->play();
-//        leftInvaderVideos.push_back(v);
-//    }
+    for(int i=0; i< 13; i++){
+        ofVideoPlayer * v = new ofVideoPlayer();
+        v->loadMovie("movies/fingers" + ofToString(i) +".mov");
+        v->play();
+        invaderVideos.push_back(v);
+    }
 //    for(int i=0; i< 13; i++){
 //        ofVideoPlayer * v = new ofVideoPlayer();
 //        v->loadMovie("movies/fingers" + ofToString(i) +".mov");
@@ -72,7 +77,7 @@ void testApp::setup() {
     yincrement = 25;
     xLincrement = 25;
     xRincrement = 25;
-    xlimit = ofGetWidth()-20;
+    xlimit = bounds.x + bounds.width-20;
     xmin = 20;
     
     }
@@ -139,7 +144,7 @@ void testApp::update() {
 		{
 			// both the arguments are int32's
 			joystick1 = m.getArgAsInt32( 0 );
-           // joystick2 = m.getArgAsInt32( 1 );
+            joystick2 = m.getArgAsInt32( 1 );
         }
         if ( m.getAddress() == "/user" && login)
 		{
@@ -147,6 +152,39 @@ void testApp::update() {
             username = m.getArgAsString( 1 );
             printf("got a user!");
             loaduser = true;
+        }
+
+        if ( m.getAddress() == "/leftshoot")
+		{
+                ofxBox2dCircle  c1;
+                c1.setPhysics(0.1, 1.0, 0.1);
+                c1.setup(box2d.getWorld(), players[0].getPosition().x, players[0].getPosition().y - players[0].getHeight()*2, 5);
+                c1.setVelocity(0, -50);
+                c1.setData(new Data());
+                Data * sd1 = (Data*)c1.getData();
+                sd1->soundID = ofRandom(0, N_SOUNDS);
+                sd1->hit	= false;		
+                sd1->type = 0;
+                leftbullets.push_back(c1);
+                lbullettimer = 0;
+            }
+        if ( m.getAddress() == "/rightshoot") {
+        ofxBox2dCircle  c2;
+        c2.setPhysics(0.1, 1.0, 0.1);
+        c2.setup(box2d.getWorld(), players[1].getPosition().x, players[1].getPosition().y - players[1].getHeight()*2, 5);
+        c2.setVelocity(0, -50);
+        c2.setData(new Data());
+        Data * sd2 = (Data*)c2.getData();
+        sd2->soundID = ofRandom(0, N_SOUNDS);
+        sd2->hit	= false;		
+        sd2->type = 0;
+        rightbullets.push_back(c2);
+        rbullettimer = 0;
+        }
+
+        if ( m.getAddress() == "/start") {
+            startScreen = false;
+            login = true;
         }
 
     }
@@ -180,28 +218,29 @@ void testApp::update() {
     
         if(startGameBool){
 
-//    for(int i=0; i<leftInvaderVideos.size(); i++){ 
-//        leftInvaderVideos[i]->idleMovie();
-//    }
+    for(int i=0; i<invaderVideos.size(); i++){ 
+        invaderVideos[i]->idleMovie();
+    }
 //    for(int i=0; i<rightInvaderVideos.size(); i++){ 
 //        rightInvaderVideos[i]->idleMovie();
 //    }
-    
+            mapped_joystick1 = int(ofMap(joystick1, 0, 360, 0, bounds.y + bounds.height));
+            mapped_joystick2 = int(ofMap(joystick2, 0, 360, 0, bounds.y + bounds.height));
     
 
     
             b2Vec2 pos1 =  players[0].body->GetPosition();
-            b2Vec2 target1 = b2Vec2(mouseX/OFX_BOX2D_SCALE, pos1.y );
-         // b2Vec2 target1 = b2Vec2(mapped_joystick1/OFX_BOX2D_SCALE, pos1.y );
-            target1.x = ofClamp(target1.x, 0, (ofGetWidth()/2)/OFX_BOX2D_SCALE - (paddlewidth/OFX_BOX2D_SCALE));
+           // b2Vec2 target1 = b2Vec2(mouseX/OFX_BOX2D_SCALE, pos1.y );
+          b2Vec2 target1 = b2Vec2(mapped_joystick1/OFX_BOX2D_SCALE, pos1.y );
+            target1.x = ofClamp(target1.x, 0, (bounds.x + bounds.width/2)/OFX_BOX2D_SCALE - (paddlewidth/OFX_BOX2D_SCALE));
             b2Vec2 diff1 = b2Vec2(target1.x-pos1.x,target1.y-pos1.y);
             diff1.operator*=(2);
             players[0].body->SetLinearVelocity(diff1);
 
             b2Vec2 pos2 =  players[1].body->GetPosition();
-            b2Vec2 target2 = b2Vec2(mouseX/OFX_BOX2D_SCALE, pos2.y );
-         // b2Vec2 target2 = b2Vec2(mapped_joystick2/OFX_BOX2D_SCALE, pos2.y );
-            target2.x = ofClamp(target2.x, (ofGetWidth()/2)/OFX_BOX2D_SCALE + (paddlewidth/OFX_BOX2D_SCALE), ofGetWidth()/OFX_BOX2D_SCALE);
+           // b2Vec2 target2 = b2Vec2(mouseX/OFX_BOX2D_SCALE, pos2.y );
+            b2Vec2 target2 = b2Vec2(mapped_joystick2/OFX_BOX2D_SCALE, pos2.y );
+            target2.x = ofClamp(target2.x, (bounds.x + bounds.width/2)/OFX_BOX2D_SCALE + (paddlewidth/OFX_BOX2D_SCALE), bounds.x + bounds.width/OFX_BOX2D_SCALE);
             b2Vec2 diff2 = b2Vec2(target2.x-pos2.x,target2.y-pos2.y);
             diff2.operator*=(2);
             players[1].body->SetLinearVelocity(diff2);
@@ -282,28 +321,28 @@ void testApp::update() {
 
     if(rightInvaders1.size() > 0){
         for(int i=0; i<rightInvaders1.size(); i++){
-            if (rightInvaders1[i].getPosition().x <= xmin + ofGetWidth()/2){  
+            if (rightInvaders1[i].getPosition().x <= xmin + bounds.x + bounds.width/2){  
                 moveRightDown = true;
             }
         }
     }
     else if(rightInvaders1.size() < 1 && rightInvaders2.size() > 0 ){
         for(int i=0; i<rightInvaders2.size(); i++){
-            if (rightInvaders2[i].getPosition().x <= xmin + ofGetWidth()/2 ){
+            if (rightInvaders2[i].getPosition().x <= xmin + bounds.x + bounds.width/2 ){
                 moveRightDown = true;
             } 
         }
     }
     else if(rightInvaders1.size() < 1 && rightInvaders2.size() < 1 && rightInvaders3.size() > 0){
         for(int i=0; i<rightInvaders3.size(); i++){
-            if (rightInvaders3[i].getPosition().x <= xmin + ofGetWidth()/2){
+            if (rightInvaders3[i].getPosition().x <= xmin + bounds.x + bounds.width/2){
                 moveRightDown = true;
             }
         }
     }
     else if(rightInvaders1.size() < 1 && rightInvaders3.size() < 1 && rightInvaders2.size() < 1 && rightInvaders4.size() > 0){
         for(int i=0; i<rightInvaders4.size(); i++){
-            if (rightInvaders4[i].getPosition().x <= xmin + ofGetWidth()/2)  {
+            if (rightInvaders4[i].getPosition().x <= xmin + bounds.x + bounds.width/2)  {
                 moveRightDown = true;
             } 
             
@@ -346,28 +385,28 @@ void testApp::update() {
 
     if(leftInvaders4.size() > 0){
         for(int i=0; i<leftInvaders4.size(); i++){
-            if (leftInvaders4[i].getPosition().x >= xlimit - ofGetWidth()/2) {
+            if (leftInvaders4[i].getPosition().x >= xlimit - bounds.x + bounds.width/2) {
                 moveLeftDown = true;
             } 
         }
     }
     else if(leftInvaders3.size() > 0 && leftInvaders4.size() < 1){
         for(int i=0; i<leftInvaders3.size(); i++){
-            if (leftInvaders3[i].getPosition().x >= xlimit - ofGetWidth()/2){
+            if (leftInvaders3[i].getPosition().x >= xlimit - bounds.x + bounds.width/2){
                 moveLeftDown = true;
             } 
         }
     }
     else if(leftInvaders2.size() < 3 && leftInvaders1.size() < 4 && leftInvaders2.size() > 0){
         for(int i=0; i<leftInvaders2.size(); i++){
-            if (leftInvaders2[i].getPosition().x >= xlimit - ofGetWidth()/2) {
+            if (leftInvaders2[i].getPosition().x >= xlimit - bounds.x + bounds.width/2) {
                 moveLeftDown = true;
             } 
         }
     }
     else if(leftInvaders2.size() < 1 && leftInvaders3.size() < 1 && leftInvaders4.size() < 1 && leftInvaders1.size() > 0){
         for(int i=0; i<leftInvaders1.size(); i++){
-            if (leftInvaders1[i].getPosition().x >= xlimit - ofGetWidth()/2)  {
+            if (leftInvaders1[i].getPosition().x >= xlimit - bounds.x + bounds.width/2)  {
                 moveLeftDown = true;
             } 
         }
@@ -434,7 +473,7 @@ void testApp::update() {
     sd2->soundID = ofRandom(0, N_SOUNDS);
     sd2->hit	= false;		
     sd2->type = 0;
-    bullets.push_back(c2);
+    invaderbullets.push_back(c2);
     }
     if(int(ofRandom(0,bulletinterval))== 1 && leftInvaders2.size()>0){
         ofxBox2dCircle  c2;
@@ -446,7 +485,7 @@ void testApp::update() {
         sd2->soundID = ofRandom(0, N_SOUNDS);
         sd2->hit	= false;		
         sd2->type = 0;
-        bullets.push_back(c2);
+        invaderbullets.push_back(c2);
     }
     if(int(ofRandom(0,bulletinterval))== 1  && leftInvaders3.size()>0){
         ofxBox2dCircle  c2;
@@ -458,7 +497,7 @@ void testApp::update() {
         sd2->soundID = ofRandom(0, N_SOUNDS);
         sd2->hit	= false;		
         sd2->type = 0;
-        bullets.push_back(c2);
+        invaderbullets.push_back(c2);
     }
     if(int(ofRandom(0,bulletinterval))== 1  && leftInvaders4.size()>0){
         ofxBox2dCircle  c2;
@@ -470,7 +509,7 @@ void testApp::update() {
         sd2->soundID = ofRandom(0, N_SOUNDS);
         sd2->hit	= false;		
         sd2->type = 0;
-        bullets.push_back(c2);
+        invaderbullets.push_back(c2);
     }
     if(int(ofRandom(0,bulletinterval))== 1  && rightInvaders1.size()>0){
         ofxBox2dCircle  c2;
@@ -482,7 +521,7 @@ void testApp::update() {
         sd2->soundID = ofRandom(0, N_SOUNDS);
         sd2->hit	= false;		
         sd2->type = 0;
-        bullets.push_back(c2);
+        invaderbullets.push_back(c2);
     }
     if(int(ofRandom(0,bulletinterval))== 1 && rightInvaders2.size()>0){
         ofxBox2dCircle  c2;
@@ -494,7 +533,7 @@ void testApp::update() {
         sd2->soundID = ofRandom(0, N_SOUNDS);
         sd2->hit	= false;		
         sd2->type = 0;
-        bullets.push_back(c2);
+        invaderbullets.push_back(c2);
     }
     if(int(ofRandom(0,bulletinterval))== 1 && rightInvaders3.size()>0){
         ofxBox2dCircle  c2;
@@ -506,7 +545,7 @@ void testApp::update() {
         sd2->soundID = ofRandom(0, N_SOUNDS);
         sd2->hit	= false;		
         sd2->type = 0;
-        bullets.push_back(c2);
+        invaderbullets.push_back(c2);
     }
     if(int(ofRandom(0,bulletinterval))== 1 && rightInvaders4.size()>0){
         ofxBox2dCircle  c2;
@@ -518,7 +557,7 @@ void testApp::update() {
         sd2->soundID = ofRandom(0, N_SOUNDS);
         sd2->hit	= false;		
         sd2->type = 0;
-        bullets.push_back(c2);
+        invaderbullets.push_back(c2);
     }
    
     
@@ -620,20 +659,33 @@ void testApp::update() {
         }
     }
     
-    for(int i=0; i<bullets.size(); i++){
-        Data * theData = (Data*)bullets[i].getData();
-        if(theData->hit == true|| bullets[i].getPosition().y < 0 || bullets[i].getPosition().y > ofGetHeight() ){
-            //     rightInvaders4[i].movie->stop();
-            //   delete rightInvaders4[i].movie;
-            box2d.getWorld()->DestroyBody(bullets[i].body);
-            //     rightInvaderVideos.erase(rightInvaderVideos.begin()+i+rows*3);
-            bullets.erase(bullets.begin()+i);  
+    for(int i=0; i<invaderbullets.size(); i++){
+        Data * theData = (Data*)invaderbullets[i].getData();
+        if(theData->hit == true|| invaderbullets[i].getPosition().y < 0 || invaderbullets[i].getPosition().y > bounds.y + bounds.height ){
+            box2d.getWorld()->DestroyBody(invaderbullets[i].body);
+            invaderbullets.erase(invaderbullets.begin()+i);  
             theData->hit = false;  
-            bullets[i].update();
+            invaderbullets[i].update();
         }
-
-        
     }
+            for(int i=0; i<leftbullets.size(); i++){
+                Data * theData = (Data*)leftbullets[i].getData();
+                if(theData->hit == true|| leftbullets[i].getPosition().y < 0 || leftbullets[i].getPosition().y > bounds.y + bounds.height ){
+                    box2d.getWorld()->DestroyBody(leftbullets[i].body);
+                    leftbullets.erase(leftbullets.begin()+i);  
+                    theData->hit = false;  
+                    leftbullets[i].update();
+                }
+            }
+            for(int i=0; i<rightbullets.size(); i++){
+                Data * theData = (Data*)rightbullets[i].getData();
+                if(theData->hit == true|| rightbullets[i].getPosition().y < 0 || rightbullets[i].getPosition().y > bounds.y + bounds.height ){
+                    box2d.getWorld()->DestroyBody(rightbullets[i].body);
+                    rightbullets.erase(rightbullets.begin()+i);  
+                    theData->hit = false;  
+                    rightbullets[i].update();
+                }
+            }
 
 
     for(int i=0; i<players.size(); i++){
@@ -664,31 +716,47 @@ void testApp::update() {
             }
             
             //IF THE INVADERS INVADE YOU
-            if(rightInvaders1.size() > 0 )
-                if(rightInvaders1[rightInvaders1.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight())
-                    player1win;
-            if(rightInvaders2.size() > 0 )
-                if(rightInvaders2[rightInvaders2.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight())
-                    player1win;
-            if(rightInvaders3.size() > 0 )
-                if(rightInvaders3[rightInvaders3.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight())
-                    player1win;
-            if(rightInvaders4.size() > 0 )
-                if(rightInvaders4[rightInvaders4.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight())
-                    player1win;
+         /*   if( rightInvaders1.size() > 0 ){
+                if(rightInvaders1[rightInvaders1.size() - 1].getPosition().y + rightInvaders1[rightInvaders1.size() - 1].getHeight()  >= bounds.y + bounds.height-players[1].getHeight()){
+                    player1win = true;
+                }
+            }
+            if( rightInvaders2.size() > 0 ){
+                if(rightInvaders2[rightInvaders2.size() - 1].getPosition().y + rightInvaders2[rightInvaders2.size() - 1].getHeight() >= bounds.y + bounds.height-players[1].getHeight()){
+                    player1win = true;
+                }
+            }
+            if( rightInvaders3.size() > 0 ){
+                if(rightInvaders3[rightInvaders3.size() - 1].getPosition().y + rightInvaders3[rightInvaders3.size() - 1].getHeight() >= bounds.y + bounds.height-players[1].getHeight()){
+                    player1win = true;
+                }
+            }
+            if( rightInvaders4.size() > 0 ){
+                if(rightInvaders4[rightInvaders4.size() - 1].getPosition().y + rightInvaders4[rightInvaders4.size() - 1].getHeight() >= bounds.y + bounds.height-players[1].getHeight()){
+                    player1win = true;
+                }
+            }
             
-            if(leftInvaders1.size() > 0 )
-                if(leftInvaders1[leftInvaders1.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight())
-                    player2win;
-            if(leftInvaders2.size() > 0 )
-                if(leftInvaders2[leftInvaders2.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight())
-                    player2win;
-            if(leftInvaders3.size() > 0 )
-                if(leftInvaders3[leftInvaders3.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight())
-                    player2win;
-            if(leftInvaders4.size() > 0 )
-                if(leftInvaders4[leftInvaders4.size() - 1].getPosition().y > ofGetHeight()-players[1].getHeight())
-                    player2win;
+            if( leftInvaders1.size() > 0 ){
+                if(leftInvaders1[leftInvaders1.size() - 1].getPosition().y + leftInvaders1[leftInvaders1.size() - 1].getHeight()  >= bounds.y + bounds.height-players[0].getHeight()){
+                    player2win = true;
+                }
+            }
+            if( leftInvaders2.size() > 0 ){
+                if(leftInvaders2[leftInvaders2.size() - 1].getPosition().y + leftInvaders2[leftInvaders2.size() - 1].getHeight()  >= bounds.y + bounds.height-players[0].getHeight()){
+                    player2win = true;
+                }
+            }
+            if( leftInvaders3.size() > 0 ){
+                if(leftInvaders3[leftInvaders3.size() - 1].getPosition().y + leftInvaders3[leftInvaders3.size() - 1].getHeight() >= bounds.y + bounds.height-players[0].getHeight()){
+                    player2win = true;
+                }
+            }
+            if( leftInvaders4.size() > 0 ){
+                if(leftInvaders4[leftInvaders4.size() - 1].getPosition().y + leftInvaders4[leftInvaders4.size() - 1].getHeight() >= bounds.y + bounds.height-players[0].getHeight()){
+                    player2win = true;
+                }
+            }*/
          
                 if(stopGame == true){
                 for(int i = 0; i<leftInvaders1.size(); i++){
@@ -723,9 +791,15 @@ void testApp::update() {
                     box2d.world->DestroyBody(rightInvaders4[i].body);
                     // delete rightInvaders4[i].movie;
                 }
-                for(int i = 0; i<bullets.size(); i++){
-                    box2d.world->DestroyBody(bullets[i].body);
+                for(int i = 0; i<invaderbullets.size(); i++){
+                    box2d.world->DestroyBody(invaderbullets[i].body);
                 }
+                    for(int i = 0; i<rightbullets.size(); i++){
+                        box2d.world->DestroyBody(rightbullets[i].body);
+                    }
+                    for(int i = 0; i<leftbullets.size(); i++){
+                        box2d.world->DestroyBody(leftbullets[i].body);
+                    }
                 for(int i = 0; i<players.size(); i++){
                     box2d.world->DestroyBody(players[i].body);
                     // delete rightInvaders4[i].movie;
@@ -741,7 +815,9 @@ void testApp::update() {
                 rightInvaders3.clear();
                 rightInvaders4.clear();
                 players.clear();
-                bullets.clear();
+                invaderbullets.clear();
+                rightbullets.clear();
+                leftbullets.clear();
             }
            
     
@@ -760,51 +836,56 @@ void testApp::update() {
 
 //--------------------------------------------------------------
 void testApp::draw() {
+    ofBackground(0); 
+    ofSetColor(255);
+    ofSetRectMode(OF_RECTMODE_CORNER);
+    backgroundimg.draw(0,0, ofGetWidth(), ofGetHeight());
+    ofSetColor(235,0,139, 125);
+    ofRect(bounds.x, bounds.y, bounds.width, 65);
+    ofRect(bounds.x, bounds.y + bounds.height-65, bounds.width, 65);
     if(startScreen){
-        verdana22.drawString("VFA INVADERS", ofGetWidth()/2, ofGetHeight()/2);
-        verdana22.drawString("Press button to start a new game", ofGetWidth()/2, ofGetHeight()/2 + 100);
+          ofSetColor(235,0,139);
+        aerofrog82.drawString("VFA INVADERS", bounds.x + bounds.width/2 - 200, bounds.y + bounds.height/2);
+        aerofrog82.drawString("Press button to start a new game",  bounds.x + bounds.width/2 - 400,bounds.y + bounds.height/2 + 100);
         printf("startscreen \n");
     }
     
     if(!user1load && login && !startScreen){
         //    printf("alpha: %d: \n", alpha);
-        ofSetColor(238,58,130, alpha);
+        ofSetColor(235,0,139, alpha);
         ofSetRectMode(OF_RECTMODE_CORNER);
-        ofRect(0,0, ofGetWidth()/2, ofGetHeight());
-        ofSetColor(0);
-        verdana22.drawString("Left Player Tap!", ofGetWidth()/4, ofGetHeight()/2 + 100);
+        ofRect(bounds.x,bounds.y + 65, bounds.width/2, bounds.height - 130);
+        ofSetColor(255);
+        aerofrog82.drawString("Left Player Tap!", bounds.x + 100, bounds.y + bounds.height/2);
     }
     
     if(user1load && !user2load && login){
-        ofSetColor(238,58,130, alpha);
+        ofSetColor(235,0,139, alpha);
         ofSetRectMode(OF_RECTMODE_CORNER);
-        ofRect(ofGetWidth()/2, 0, ofGetWidth()/2, ofGetHeight());
+        ofRect(bounds.x + bounds.width/2, bounds.y + 65, bounds.width/2, bounds.height - 130);
         ofSetColor(255);
-        ofSetRectMode(OF_RECTMODE_CORNER);
-        user1.draw(ofGetWidth()/4, ofGetHeight()/2, 150, 150);
-        ofSetColor(0);
-        verdana22.drawString(username1, ofGetWidth()/4, ofGetHeight()/2 + user1.height + 75);
-        verdana22.drawString("Right Player Tap!", ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2 + 100);
+        user1.draw(bounds.x + bounds.width/4 - 100, bounds.height/2, 100, 100);
+        aerofrog82.drawString(username1, bounds.x + bounds.width/4 - 200, bounds.y + bounds.height/2 + 120);
+        ofSetColor(255);
+        aerofrog82.drawString("Right Player Tap!", bounds.x + bounds.width/2 + 100, bounds.y + bounds.height/2);
     }
     
     if(user1load &&  user2load){
         countdownnumbool = true;
         ofSetColor(255);
-        ofSetRectMode(OF_RECTMODE_CORNER);
-        user1.draw(ofGetWidth()/4, ofGetHeight()/2, 150, 150);
-        user2.draw(ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2, 150, 150);
-        ofSetColor(0);
-        verdana22.drawString(username1, ofGetWidth()/4, ofGetHeight()/2 + user1.height + 75);
-        verdana22.drawString(username2, ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2 + user2.height + 75);        
+        user1.draw(bounds.x + bounds.width/4 - 100, bounds.y + bounds.height/2 - 100, 100, 100);
+        user2.draw(bounds.x + bounds.width/4 - 100, + bounds.width/2, bounds.y + bounds.height/2 - 100, 100, 100);
+        aerofrog82.drawString(username1, bounds.x + bounds.width/4 - 200, bounds.y + bounds.height/2 + 150);
+        aerofrog82.drawString(username2, bounds.x + bounds.width/4 - 200 + bounds.width/2, bounds.y + bounds.height/2 + 150);
         if(countdownnum > 300)
-            verdana22.drawString("3", ofGetWidth()/2 , ofGetHeight()/2 + 100);
-        if(countdownnum > 200 && countdownnum < 300 )
-            verdana22.drawString("2", ofGetWidth()/2 , ofGetHeight()/2 + 100);
+            aerofrog82.drawString("3", bounds.x + bounds.width/2, bounds.y + bounds.height/2);
+        if(countdownnum > 200 &&countdownnum < 300 )
+            aerofrog82.drawString("2", bounds.x + bounds.width/2, bounds.y + bounds.height/2);
         if(countdownnum > 100 && countdownnum < 200)
-            verdana22.drawString("1", ofGetWidth()/2, ofGetHeight()/2 + 100);
+            aerofrog82.drawString("1", bounds.x + bounds.width/2, bounds.y + bounds.height/2);
         if(countdownnum > 0 && countdownnum < 100)
-            verdana22.drawString("GO!", ofGetWidth()/2, ofGetHeight()/2 + 100);
-        if (countdownnum == 0){
+            aerofrog82.drawString("GO!", bounds.x + bounds.width/2, bounds.y + bounds.height/2);
+        if (countdownnum == 0 && countdownnumbool){
             countdownnumbool = false;
             startGame();
             drawusers = true;
@@ -814,11 +895,10 @@ void testApp::draw() {
         }
         
     }
- 
 
     if(drawGame){
     
-        ofLine(ofGetWidth()/2, 0, ofGetWidth()/2, ofGetHeight());
+        ofLine(bounds.x + bounds.width/2, 0, bounds.x + bounds.width/2, bounds.y + bounds.height);
 
         
     //DRAW THE INVADERS
@@ -847,23 +927,30 @@ void testApp::draw() {
     for(int i=0; i<rightInvaders4.size(); i++){
         rightInvaders4[i].draw();
     }
-    for(int i = 0; i<bullets.size(); i++){
-        ofSetHexColor(0x4ccae9);
-        bullets[i].draw();
+    for(int i = 0; i<invaderbullets.size(); i++){
+        ofSetColor(255);
+        vimeologo.draw(invaderbullets[i].getPosition().x, invaderbullets[i].getPosition().y, 20,20);
     }
+        for(int i = 0; i<leftbullets.size(); i++){
+            ofSetColor(255);
+            user1.draw(leftbullets[i].getPosition().x, leftbullets[i].getPosition().y, 20,20);
+        }
+        for(int i = 0; i<rightbullets.size(); i++){
+            ofSetColor(255);
+            user2.draw(rightbullets[i].getPosition().x, rightbullets[i].getPosition().y, 20,20);
+        }
     
     }
     if(player1win){
         ofSetColor(0);
-        verdana22.drawString("YOU WIN!", ofGetWidth()/4, ofGetHeight()/2 - user1.height);
-        verdana22.drawString("YOU LOSE!", ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2 - user1.height);
-        ofSetColor(255);
+        aerofrog82.drawString("YOU WIN!", bounds.x + bounds.width/4 - 200, bounds.y + bounds.height/2 - 150);
+        aerofrog82.drawString("YOU LOSE!", bounds.x + bounds.width/4 - 200 + bounds.width/2, bounds.y + bounds.height/2 - 150);        ofSetColor(255);
         ofSetRectMode(OF_RECTMODE_CORNER);
-        user1.draw(ofGetWidth()/4, ofGetHeight()/2, 150, 150);
-        user2.draw(ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2, 150, 150);
+        user1.draw(bounds.x + bounds.width/4 - 100, bounds.y + bounds.height/2 - 100, 100, 100);
+        user2.draw(bounds.x + bounds.width/4 - 100, + bounds.width/2, bounds.y + bounds.height/2 - 100, 100, 100);
         ofSetColor(0);
-        verdana22.drawString(username1, ofGetWidth()/4, ofGetHeight()/2 + user1.height + 75);
-        verdana22.drawString(username2, ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2 + user2.height + 75);
+        aerofrog82.drawString(username1, bounds.x + bounds.width/4 - 200, bounds.y + bounds.height/2 + 150);
+        aerofrog82.drawString(username2, bounds.x + bounds.width/4 - 200 + bounds.width/2, bounds.y + bounds.height/2 + 150);
         stopGame = true;
         counter++;
         printf("counter: %d\n", counter);
@@ -871,15 +958,15 @@ void testApp::draw() {
     }
     if(player2win){
         ofSetColor(0);
-        verdana22.drawString("YOU LOSE!", ofGetWidth()/4, ofGetHeight()/2 - user1.height);
-        verdana22.drawString("YOU WIN!", ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2 - user1.height);
+        aerofrog82.drawString("YOU LOSE!", bounds.x + bounds.width/4 - 200, bounds.y + bounds.height/2 - 150);
+        aerofrog82.drawString("YOU WIN!", bounds.x + bounds.width/4 - 200 + bounds.width/2, bounds.y + bounds.height/2 - 150);
         ofSetColor(255);
         ofSetRectMode(OF_RECTMODE_CORNER);
-        user1.draw(ofGetWidth()/4, ofGetHeight()/2, 150, 150);
-        user2.draw(ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2, 150, 150);
+        user1.draw(bounds.x + bounds.width/4, bounds.y + bounds.height/2, 150, 150);
+        user2.draw(bounds.x + bounds.width/4 + bounds.x + bounds.width/2, bounds.y + bounds.height/2, 150, 150);
         ofSetColor(0);
-        verdana22.drawString(username1, ofGetWidth()/4, ofGetHeight()/2 + user1.height + 50);
-        verdana22.drawString(username2, ofGetWidth()/4 + ofGetWidth()/2, ofGetHeight()/2 + user2.height + 75);
+        aerofrog82.drawString(username1, bounds.x + bounds.width/4 - 200, bounds.y + bounds.height/2 + 150);
+        aerofrog82.drawString(username2, bounds.x + bounds.width/4 - 200 + bounds.width/2, bounds.y + bounds.height/2 + 150);
         stopGame = true;
         counter++;
         printf("counter: %d\n", counter);
@@ -894,60 +981,56 @@ void testApp::draw() {
         if(drawusers){
             Data * data1 = (Data*)players[0].getData();
             ofSetColor(255,255,255, data1->paddleopacity);
-            user1.draw(players[0].getPosition().x, players[0].getPosition().y, players[0].getWidth() * 2, players[0].getWidth() * 2);
-            ofSetColor(255);
-            verdana22.drawString("Lives: ",25 , 25);
+            user1.draw(players[0].getPosition().x, players[0].getPosition().y + 80, 40, 40);
+            ofSetColor(236, 28, 36, data1->paddleopacity);
+            ofRect(players[0].getPosition().x, players[0].getPosition().y, 80, 80);
+            ofSetColor(236, 28, 36);
+            aerofrog82.drawString("LIVES ",bounds.x+100, bounds.y +65);
             if(data1->paddleopacity == 255){
-                user1.draw(150, 25, 40,40);
-                user1.draw(200, 25, 40,40);
-                user1.draw(250, 25, 40,40);
-            }
+                user1.draw(bounds.x+ 130, bounds.y+25, 40,40);
+                user1.draw(bounds.x+ 80, bounds.y+25, 40,40);    
+                user1.draw(bounds.x+ 30, bounds.y+25, 40,40);
+                          }
 
             if(data1->paddleopacity == 170){
-                user1.draw(200, 25, 40,40);    
-                user1.draw(150, 25, 40,40);
+                user1.draw(bounds.x+ 80, bounds.y+25, 40,40);    
+                user1.draw(bounds.x+ 30, bounds.y+25, 40,40);
             }
             if(data1->paddleopacity == 85){
-                user1.draw(150, 25, 40,40);
+                user1.draw(bounds.x+ 30, bounds.y+25, 40,40);
             }
 
              Data * data2 = (Data*)players[1].getData();
-              ofSetColor(255,255,255, data2->paddleopacity);
-            user2.draw(players[1].getPosition().x, players[1].getPosition().y, players[1].getWidth() * 2, players[1].getWidth() * 2);
-            ofSetColor(255);
-            verdana22.drawString("Lives: ",ofGetWidth()-300 , 25);
+            ofSetColor(255,255,255, data2->paddleopacity);
+            user2.draw(players[1].getPosition().x, players[1].getPosition().y + 80, 40, 40);
+            ofSetColor(236, 28, 36, data2->paddleopacity);
+            ofRect(players[1].getPosition().x, players[1].getPosition().y, 80, 80);
+            ofSetColor(236, 28, 36);
+            
+            aerofrog82.drawString("LIVES ", bounds.x + bounds.width/2 + 100, bounds.y +65);
             if(data2->paddleopacity == 255){
-                user2.draw(ofGetWidth()-100, 25, 40,40);
-                user2.draw(ofGetWidth()-150, 25, 40,40);
-                user2.draw(ofGetWidth()-200, 25, 40,40);
-            }
+                user2.draw(bounds.x+ 130 + bounds.width/2, bounds.y+25, 40,40);
+                user2.draw(bounds.x+ 80 + bounds.width/2, bounds.y+25, 40,40);
+                user2.draw(bounds.x+ 30 + bounds.width/2, bounds.y+25, 40,40);            }
             
             if(data2->paddleopacity == 170){
-                user2.draw(ofGetWidth()-200, 50, 40,40);    
-                user2.draw(ofGetWidth()-150, 50, 40,40);
+                user2.draw(bounds.x+ 80 + bounds.width/2, bounds.y+25, 40,40);
+                user2.draw(bounds.x+ 30 + bounds.width/2, bounds.y+25, 40,40);
             }
             if(data2->paddleopacity == 85){
-                user2.draw(ofGetWidth()-200, 50, 40,40);
+                user2.draw(bounds.x+ 30 + bounds.width/2, bounds.y+25, 40,40);
             }
             
 
             
         }
-        else{
-           for(int i=0; i<players.size(); i++) {
-                ofFill();
-                Data * data = (Data*)players[i].getData();
-                ofSetColor(0,0,255, data->paddleopacity);
-                players[i].draw();
-            }
-        }
-        
+                
 }
 
 //--------------------------------------------------------------
 void testApp::keyPressed(int key) {
     
-    if (key == 'L' || key == 'l' && lbullettimer>50){
+    if ((key == 'L' || key == 'l') && lbullettimer>50){
     ofxBox2dCircle  c1;
         c1.setPhysics(0.1, 1.0, 0.1);
     c1.setup(box2d.getWorld(), players[0].getPosition().x, players[0].getPosition().y - players[0].getHeight()*2, 5);
@@ -957,10 +1040,10 @@ void testApp::keyPressed(int key) {
     sd1->soundID = ofRandom(0, N_SOUNDS);
     sd1->hit	= false;		
     sd1->type = 0;
-    bullets.push_back(c1);
+    leftbullets.push_back(c1);
         lbullettimer = 0;
     }
-if (key == 'R' || key == 'r' && rbullettimer>50 ){
+if ((key == 'R' || key == 'r') && rbullettimer>50 ){
         ofxBox2dCircle  c2;
         c2.setPhysics(0.1, 1.0, 0.1);
         c2.setup(box2d.getWorld(), players[1].getPosition().x, players[1].getPosition().y - players[1].getHeight()*2, 5);
@@ -970,7 +1053,7 @@ if (key == 'R' || key == 'r' && rbullettimer>50 ){
         sd2->soundID = ofRandom(0, N_SOUNDS);
         sd2->hit	= false;		
         sd2->type = 0;
-        bullets.push_back(c2);
+        rightbullets.push_back(c2);
     rbullettimer = 0;
     }
     
@@ -987,7 +1070,7 @@ void testApp::startGame(){
     drawGame = true;
     ofxBox2dRect player1;
     player1.setPhysics(0.1, 1.0, 0.0);
-    player1.setup(box2d.getWorld(), 0, ofGetHeight()-10, paddlewidth, paddlewidth, b2_kinematicBody);
+    player1.setup(box2d.getWorld(), bounds.x, bounds.y + bounds.height-10, paddlewidth, paddlewidth, b2_kinematicBody);
     player1.setData(new Data());
     //  paddle1.body->SetUserData(paddle1);
     Data * sd1 = (Data*)player1.getData();
@@ -1000,7 +1083,7 @@ void testApp::startGame(){
     
     ofxBox2dRect player2;
     player2.setPhysics(0.1, 1.0, 0.0);
-    player2.setup(box2d.getWorld(), ofGetWidth(), ofGetHeight()-10, paddlewidth, paddlewidth, b2_kinematicBody);
+    player2.setup(box2d.getWorld(), bounds.x + bounds.width, bounds.y + bounds.height-10, paddlewidth, paddlewidth, b2_kinematicBody);
     //   paddle2.body->SetUserData(paddle2);
     player2.setData(new Data());
     Data * sd2 = (Data*)player2.getData();
@@ -1014,27 +1097,27 @@ void testApp::startGame(){
     for(int i=0; i < 4; i++){
         Invader v;
         v.setPhysics(1.0, 0.5, 0.3);
-        v.setup(box2d.getWorld(), float(((ofGetWidth()/2 - 60)/columns)+ (ofGetWidth()/2)), float(((ofGetHeight() - ofGetHeight()/2)/(rows))*i + 60), 40,40, b2_staticBody);
+        v.setup(box2d.getWorld(), float(((bounds.x + bounds.width/2 - 60)/columns)+ (bounds.x + bounds.width/2)), float(((bounds.y + bounds.height - bounds.y + bounds.height/2)/(rows))*i + 60), 40,40, b2_staticBody);
         v.setupTheCustomData();
-        //      v.movie = rightInvaderVideos[i];
+        v.movie = invaderVideos[ofRandom(0,13)];
         rightInvaders1.push_back(v);
     }
     
     for(int i=0; i < rows; i++){
         Invader v;
         v.setPhysics(1.0, 0.5, 0.3);
-        v.setup(box2d.getWorld(), float(((ofGetWidth()/2 - 60)/columns)*2 + (ofGetWidth()/2)), float(((ofGetHeight() - ofGetHeight()/2)/(rows))*i + 60), 40,40, b2_staticBody);
+        v.setup(box2d.getWorld(), float(((bounds.x + bounds.width/2 - 60)/columns)*2 + (bounds.x + bounds.width/2)), float(((bounds.y + bounds.height - bounds.y + bounds.height/2)/(rows))*i + 60), 40,40, b2_staticBody);
         v.setupTheCustomData();
-        //       v.movie = rightInvaderVideos[i + rows];
+        v.movie = invaderVideos[ofRandom(0,13)];
         rightInvaders2.push_back(v);
     }
     
     for(int i=0; i < rows; i++){
         Invader v;
         v.setPhysics(1.0, 0.5, 0.3);
-        v.setup(box2d.getWorld(), float(((ofGetWidth()/2 - 60)/columns)*3 + (ofGetWidth()/2 )), float(((ofGetHeight() - ofGetHeight()/2)/(rows))*i + 60), 40,40, b2_staticBody);
+        v.setup(box2d.getWorld(), float(((bounds.x + bounds.width/2 - 60)/columns)*3 + (bounds.x + bounds.width/2 )), float(((bounds.y + bounds.height - bounds.y + bounds.height/2)/(rows))*i + 60), 40,40, b2_staticBody);
         v.setupTheCustomData();
-        //       v.movie = rightInvaderVideos[i + rows*2];
+        v.movie = invaderVideos[ofRandom(0,13)];
         rightInvaders3.push_back(v);
     }
     
@@ -1042,9 +1125,9 @@ void testApp::startGame(){
     for(int i=0; i < rows; i++){
         Invader v;
         v.setPhysics(1.0, 0.5, 0.3);
-        v.setup(box2d.getWorld(), float(((ofGetWidth()/2 - 60)/columns)*4 + (ofGetWidth()/2)), float(((ofGetHeight() - ofGetHeight()/2)/rows)*i + 60), 40,40, b2_staticBody);
+        v.setup(box2d.getWorld(), float(((bounds.x + bounds.width/2 - 60)/columns)*4 + (bounds.x + bounds.width/2)), float(((bounds.y + bounds.height - bounds.y + bounds.height/2)/rows)*i + 60), 40,40, b2_staticBody);
         v.setupTheCustomData();
-        //     v.movie = rightInvaderVideos[i + rows*3];
+        v.movie = invaderVideos[ofRandom(0,13)];
         rightInvaders4.push_back(v);
     }
     
@@ -1052,18 +1135,18 @@ void testApp::startGame(){
     for(int i=0; i < rows; i++){
         Invader v;
         v.setPhysics(1.0, 0.5, 0.3);
-        v.setup(box2d.getWorld(), float(((ofGetWidth()/2 - 60)/columns)), float(((ofGetHeight() - ofGetHeight()/2)/rows)*i + 60), 40,40, b2_staticBody);
+        v.setup(box2d.getWorld(), float(((bounds.x + bounds.width/2 - 60)/columns)), float(((bounds.y + bounds.height - bounds.y + bounds.height/2)/rows)*i + 60), 40,40, b2_staticBody);
         v.setupTheCustomData();
-        //      v.movie = leftInvaderVideos[i];
+        v.movie = invaderVideos[ofRandom(0,13)];
         leftInvaders1.push_back(v);
     }
     
     for(int i=0; i < rows; i++){
         Invader v;
         v.setPhysics(1.0, 0.5, 0.3);
-        v.setup(box2d.getWorld(), float(((ofGetWidth()/2 - 60)/columns)*2), float(((ofGetHeight() - ofGetHeight()/2)/rows)*i + 60), 40,40, b2_staticBody);
+        v.setup(box2d.getWorld(), float(((bounds.x + bounds.width/2 - 60)/columns)*2), float(((bounds.y + bounds.height - bounds.y + bounds.height/2)/rows)*i + 60), 40,40, b2_staticBody);
         v.setupTheCustomData();
-        //       v.movie = leftInvaderVideos[i + rows];
+        v.movie = invaderVideos[ofRandom(0,13)];
         leftInvaders2.push_back(v);
     }
     
@@ -1071,9 +1154,9 @@ void testApp::startGame(){
     for(int i=0; i < rows; i++){
         Invader v;
         v.setPhysics(1.0, 0.5, 0.3);
-        v.setup(box2d.getWorld(), float(((ofGetWidth()/2 - 60)/columns)*3), float(((ofGetHeight() - ofGetHeight()/2)/rows)*i + 60), 40,40, b2_staticBody);
+        v.setup(box2d.getWorld(), float(((bounds.x + bounds.width/2 - 60)/columns)*3), float(((bounds.y + bounds.height - bounds.y + bounds.height/2)/rows)*i + 60), 40,40, b2_staticBody);
         v.setupTheCustomData();
-        //     v.movie = leftInvaderVideos[i + rows*2];
+        v.movie = invaderVideos[ofRandom(0,13)];
         leftInvaders3.push_back(v);
     }
     
@@ -1081,9 +1164,9 @@ void testApp::startGame(){
     for(int i=0; i < rows; i++){
         Invader v;
         v.setPhysics(1.0, 0.5, 0.3);
-        v.setup(box2d.getWorld(), float(((ofGetWidth()/2 - 60)/columns)*4), float(((ofGetHeight() - ofGetHeight()/2)/rows)*i + 60), 40,40, b2_staticBody);
+        v.setup(box2d.getWorld(), float(((bounds.x + bounds.width/2 - 60)/columns)*4), float(((bounds.y + bounds.height - bounds.y + bounds.height/2)/rows)*i + 60), 40,40, b2_staticBody);
         v.setupTheCustomData();
-        //     v.movie = leftInvaderVideos[i  + rows*3];
+        v.movie = invaderVideos[ofRandom(0,13)];
         leftInvaders4.push_back(v);
     }
     
