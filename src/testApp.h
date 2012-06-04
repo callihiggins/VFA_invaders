@@ -127,7 +127,8 @@ public:
     vector		<Invader>  rightInvaders3;
     vector		<Invader>  rightInvaders4;
     vector		<Invader>  rightInvaders5;
-    ofTrueTypeFont	aerofrog82;
+    ofTrueTypeFont	visitor82;
+    ofTrueTypeFont	visitor42;
     ofImage vimeologo, backgroundimg;
     int score1, score2, counter, count, joystick1, joystick2, mapped_joystick1, mapped_joystick2, numInvaders, columns, rows, yincrement, xLincrement, xRincrement, xlimit, xmin, paddlewidth, bulletcounter, paddleopacity, lbullettimer, bulletinterval, rbullettimer ;
     ofImage user1, user2;
@@ -140,6 +141,6 @@ public:
     int whichuser, countdownnum, alpha, alphaincrement;
     int paddleattraction;
     b2Vec2 pveloc;
-    bool fullscreen,  startGameBool, drawGame, player1win, player2win, startScreen,  countdown, countdownnumbool, drawusers, login;
+    bool fullscreen,  startGameBool, drawGame, player1win, player2win, player2lose, player1lose, startScreen,  countdown, countdownnumbool, drawusers, login;
 };
 
